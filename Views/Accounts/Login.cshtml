@@ -1,0 +1,37 @@
+﻿@model Accounts
+@{
+    ViewData["Title"] = "Login";
+}
+
+<link rel="stylesheet" href="/css/style.css">
+<link href='https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css' rel='stylesheet'>
+<form asp-controller="Accounts" asp-action="Login" method="post">
+    <div class="box">
+        <div class="container">
+            <div class="top-header">
+                <header>Login</header>
+            </div>
+            <div class="input-field">
+                <input type="text" class="input" placeholder="Username" asp-for="username" required>
+                <i class="bx bx-user" asp-validation-for="username"></i>
+            </div>
+            <div class="input-field">
+                <input type="password" class="input" placeholder="Password" asp-for="password" required>
+                <i class="bx bx-lock-alt" asp-validation-for="password"></i>
+            </div>
+            <div class="input-field">
+                <input type="submit" class="submit" value="Login">
+            </div>
+            <div class="bottom">
+                <div class="left">
+                    <input type="checkbox" id="check">
+                    <label for="check"> Remember Me</label>
+                </div>
+                <div class="right">
+                    <label><a href="#">Forgot password?</a></label>
+                </div>
+            </div>
+        </div>
+    </div>
+</form>
+
