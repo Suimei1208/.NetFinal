@@ -2,6 +2,7 @@
 using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.VisualStudio.Web.CodeGenerators.Mvc.Templates.Blazor;
 using NetTechnology_Final.Context;
 using NetTechnology_Final.Models;
 using NetTechnology_Final.Services.EmailService;
@@ -22,7 +23,7 @@ namespace NetTechnology_Final.Controllers
 
         [Authorize]
         [HttpPost]
-        public async Task<IActionResult> Create(EmailDto request, Accounts accounts)
+        public async Task<IActionResult> Create(EmailDto request, Accounts accounts, DateTime dateTime)
         {
             var Sale = await _context.Accounts
             .FirstOrDefaultAsync(a => a.Email == accounts.Email);
@@ -36,8 +37,9 @@ namespace NetTechnology_Final.Controllers
                     Email = accounts.Email,
                     Role = Role.Salesperson,
                     Status = Status.InActive,
+                    CreateDate = DateTime.UtcNow,
                     Token = token,
-                    TokenExpiration = DateTime.UtcNow.ToString("yyyyMMddHHmmss")
+                    TokenExpiration = DateTime.UtcNow.AddMinutes(1)                   
             };
                 
                 _context.Accounts.Add(NewSale);
@@ -69,11 +71,11 @@ namespace NetTechnology_Final.Controllers
 
             if (tokenInfo != null)
             {
-                string tokenExpiration = DateTime.UtcNow.ToString("yyyyMMddHHmmss");
+                DateTime tokenExpiration = DateTime.UtcNow;
 
-                if (tokenInfo.TokenExpiration != null && long.TryParse(tokenExpiration, out long currentTimestamp) && long.TryParse(tokenInfo.TokenExpiration, out long tokenTimestamp))
+                if (tokenInfo.TokenExpiration != null)
                 {
-                    if (currentTimestamp + 60 > tokenTimestamp)
+                    if (tokenInfo.TokenExpiration > tokenExpiration)
                     {
                         // Mã chưa hết hạn, xử lý tiếp theo
                         return View();

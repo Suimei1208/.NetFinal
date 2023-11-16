@@ -45,6 +45,9 @@ namespace NetTechnology_Final.Models
         public string? Avatar { get; set; }
         [EnumDataType(typeof(Status))]
         public Status Status { get; set; }
+        public DateTime CreateDate { get; set; }
+        public string? Token { get; set; }
+        public DateTime? TokenExpiration { get; set; }
 
         private bool IsValidEmail(string email)
         {
