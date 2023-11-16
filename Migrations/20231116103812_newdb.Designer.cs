@@ -11,8 +11,8 @@ using NetTechnology_Final.Context;
 namespace NetTechnology_Final.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    [Migration("20231116061221_InitialCreate")]
-    partial class InitialCreate
+    [Migration("20231116103812_newdb")]
+    partial class newdb
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -48,6 +48,12 @@ namespace NetTechnology_Final.Migrations
 
                     b.Property<int>("Status")
                         .HasColumnType("int");
+
+                    b.Property<string>("Token")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("TokenExpiration")
+                        .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("password")
                         .IsRequired()

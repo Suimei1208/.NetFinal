@@ -21,6 +21,7 @@ namespace NetTechnology_Final
 
                 });
             builder.Services.AddScoped<IEmailService, EmailService>();
+            builder.Services.AddHttpContextAccessor();
             builder.Services.AddDbContext<ApplicationDbContext>(options => options.
                 UseSqlServer(builder.Configuration.GetConnectionString("Conn")));
             var app = builder.Build();

@@ -14,14 +14,14 @@ namespace NetTechnology_Final.Services.EmailService
             _config = config;
         }
 
-        public void SendEmail(EmailDto request, Accounts accounts)
+        public void SendEmail(EmailDto request, Accounts accounts, string link)
         {
             var email = new MimeMessage();
             // email.From.Add(MailboxAddress.Parse(_config.GetSection("EmailSettings:SmtpUsername").Value));
             email.From.Add(new MailboxAddress(_config.GetSection("EmailSettings:SenderName").Value, _config.GetSection("EmailSettings:SenderEmail").Value));
             email.To.Add(MailboxAddress.Parse(accounts.Email));
             email.Subject = request.Subject;
-            email.Body = new TextPart(MimeKit.Text.TextFormat.Html) { Text = request.SetBody("Test thử chơi chơi") };
+            email.Body = new TextPart(MimeKit.Text.TextFormat.Html) { Text = request.SetBody("Please click on this link to create a password, the link will expire within 1 minute:\n") + link };
 
             using var stmp = new SmtpClient();
             stmp.Connect(_config.GetSection("EmailSettings:SmtpServer").Value,

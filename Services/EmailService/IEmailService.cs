@@ -4,7 +4,7 @@ namespace NetTechnology_Final.Services.EmailService
 {
     public interface IEmailService
     {
-        void SendEmail(EmailDto request, Accounts accounts);
+        void SendEmail(EmailDto request, Accounts accounts, string link);
         
     }
 }

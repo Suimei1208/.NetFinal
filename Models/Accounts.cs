@@ -30,7 +30,6 @@ namespace NetTechnology_Final.Models
         }
 
         private string _email;
-        [Required]
         public string? password { get; set; }
         [EnumDataType(typeof(Role))]
         public Role Role { get; set; }
@@ -38,7 +37,8 @@ namespace NetTechnology_Final.Models
         public string? Avatar { get; set; }
         [EnumDataType(typeof(Status))]
         public Status Status { get; set; }
-
+        public string? Token {  get; set; }
+        public string? TokenExpiration { get; set; }
         public Accounts()
         {
             

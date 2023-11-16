@@ -46,6 +46,12 @@ namespace NetTechnology_Final.Migrations
                     b.Property<int>("Status")
                         .HasColumnType("int");
 
+                    b.Property<string>("Token")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("TokenExpiration")
+                        .HasColumnType("nvarchar(max)");
+
                     b.Property<string>("password")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");

@@ -11,8 +11,8 @@ using NetTechnology_Final.Context;
 namespace NetTechnology_Final.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    [Migration("20231116052601_InitialMigration")]
-    partial class InitialMigration
+    [Migration("20231116103148_db")]
+    partial class db
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -33,7 +33,6 @@ namespace NetTechnology_Final.Migrations
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
 
                     b.Property<string>("Avatar")
-                        .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("Email")
@@ -49,6 +48,12 @@ namespace NetTechnology_Final.Migrations
 
                     b.Property<int>("Status")
                         .HasColumnType("int");
+
+                    b.Property<string>("Token")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("TokenExpiration")
+                        .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("password")
                         .IsRequired()
@@ -76,7 +81,6 @@ namespace NetTechnology_Final.Migrations
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("Avatar")
-                        .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("Email")

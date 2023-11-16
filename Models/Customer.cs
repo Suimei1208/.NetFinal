@@ -30,7 +30,6 @@ namespace NetTechnology_Final.Models
         }
 
         private string _email;
-        [Required]
         public string? password { get; set; }
         [EnumDataType(typeof(Role))]
         public Role Role { get; set; }
