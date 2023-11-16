@@ -31,7 +31,7 @@ namespace NetTechnology_Final.Models
 
         private string _email;
         [Required]
-        public string password { get; set; }
+        public string? password { get; set; }
         [EnumDataType(typeof(Role))]
         public Role Role { get; set; }
         public string Phone { get; set; }
@@ -43,7 +43,7 @@ namespace NetTechnology_Final.Models
         }
 
         public string Address { get; set; }
-        public string Avatar { get; set; }
+        public string? Avatar { get; set; }
         [EnumDataType(typeof(Status))]
         public Status Status { get; set; }
 

@@ -7,11 +7,20 @@ using System.Security.Claims;
 using Microsoft.AspNetCore.Authorization;
 using System.Net.Mail;
 using MimeKit;
+using Microsoft.EntityFrameworkCore;
+using NetTechnology_Final.Context;
 
 namespace NetTechnology_Final.Controllers
 {
     public class AccountsController : Controller
     {
+        private readonly ApplicationDbContext _context;
+
+        public AccountsController(ApplicationDbContext context)
+        {
+            _context = context;
+        }
+
         [AllowAnonymous]
         [OnlyUnauthenticated]
         public IActionResult Login()
@@ -27,22 +36,24 @@ namespace NetTechnology_Final.Controllers
             {
                 return View();
             }
+            var adminAccount = await _context.Accounts
+            .FirstOrDefaultAsync(a => a.username == account.username && a.password == account.password);
 
-            if (account.username == "admin" && account.password == "admin")
+            if (adminAccount != null)
             {
-                await saveLogin(account);
+                await saveLogin(adminAccount);
                 return RedirectToAction("Index", "Home");
             }
+            
             return View();
         }
 
         private async Task saveLogin(Accounts account)
         {
-            string role = "Salesperson";
-            if (account.username == "admin") role = "Admin";
             var claims = new List<Claim>()
             {
-                new (ClaimTypes.Role, role.ToString())
+                new(ClaimTypes.Name, account.Name),
+                new (ClaimTypes.Role, account.Role.ToString())
             };
             var identity = new ClaimsIdentity(claims, CookieAuthenticationDefaults.AuthenticationScheme);
             var principal = new ClaimsPrincipal(identity);
