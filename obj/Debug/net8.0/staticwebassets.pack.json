@@ -5,6 +5,10 @@
       "PackagePath": "staticwebassets\\NetTechnology_Final.bundle.scp.css"
     },
     {
+      "Id": "C:\\Users\\Suimeiii\\Desktop\\Final_C#\\wwwroot\\css\\404.css",
+      "PackagePath": "staticwebassets\\css\\404.css"
+    },
+    {
       "Id": "C:\\Users\\Suimeiii\\Desktop\\Final_C#\\wwwroot\\css\\site.css",
       "PackagePath": "staticwebassets\\css\\site.css"
     },
@@ -19,6 +23,10 @@
     {
       "Id": "C:\\Users\\Suimeiii\\Desktop\\Final_C#\\wwwroot\\img\\back.jpg",
       "PackagePath": "staticwebassets\\img\\back.jpg"
+    },
+    {
+      "Id": "C:\\Users\\Suimeiii\\Desktop\\Final_C#\\wwwroot\\js\\404.js",
+      "PackagePath": "staticwebassets\\js\\404.js"
     },
     {
       "Id": "C:\\Users\\Suimeiii\\Desktop\\Final_C#\\wwwroot\\js\\site.js",

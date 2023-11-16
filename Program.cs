@@ -17,6 +17,7 @@ namespace NetTechnology_Final
                 .AddCookie(option =>
                 {
                     option.LoginPath = "/Accounts/Login";
+                    option.AccessDeniedPath = "/Error/notfound";
 
                 });
             builder.Services.AddScoped<IEmailService, EmailService>();

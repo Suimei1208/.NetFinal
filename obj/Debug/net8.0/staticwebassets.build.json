@@ -1,6 +1,6 @@
 {
   "Version": 1,
-  "Hash": "/pMAZXQrtH92Lq/r1/ohqtxaTOcL56qjI0n66nrP3O4=",
+  "Hash": "NTNABr19O67BwPkVy0+ccI4m9l0nYA8H8ODKAAnHgV0=",
   "Source": "NetTechnology_Final",
   "BasePath": "_content/NetTechnology_Final",
   "Mode": "Default",
@@ -93,6 +93,25 @@
       "OriginalItemSpec": "C:\\Users\\Suimeiii\\Desktop\\Final_C#\\obj\\Debug\\net8.0\\scopedcss\\projectbundle\\NetTechnology_Final.bundle.scp.css"
     },
     {
+      "Identity": "C:\\Users\\Suimeiii\\Desktop\\Final_C#\\wwwroot\\css\\404.css",
+      "SourceId": "NetTechnology_Final",
+      "SourceType": "Discovered",
+      "ContentRoot": "C:\\Users\\Suimeiii\\Desktop\\Final_C#\\wwwroot\\",
+      "BasePath": "_content/NetTechnology_Final",
+      "RelativePath": "css/404.css",
+      "AssetKind": "All",
+      "AssetMode": "All",
+      "AssetRole": "Primary",
+      "AssetMergeBehavior": "PreferTarget",
+      "AssetMergeSource": "",
+      "RelatedAsset": "",
+      "AssetTraitName": "",
+      "AssetTraitValue": "",
+      "CopyToOutputDirectory": "Never",
+      "CopyToPublishDirectory": "PreserveNewest",
+      "OriginalItemSpec": "wwwroot\\css\\404.css"
+    },
+    {
       "Identity": "C:\\Users\\Suimeiii\\Desktop\\Final_C#\\wwwroot\\css\\site.css",
       "SourceId": "NetTechnology_Final",
       "SourceType": "Discovered",
@@ -167,6 +186,25 @@
       "CopyToOutputDirectory": "Never",
       "CopyToPublishDirectory": "PreserveNewest",
       "OriginalItemSpec": "wwwroot\\img\\back.jpg"
+    },
+    {
+      "Identity": "C:\\Users\\Suimeiii\\Desktop\\Final_C#\\wwwroot\\js\\404.js",
+      "SourceId": "NetTechnology_Final",
+      "SourceType": "Discovered",
+      "ContentRoot": "C:\\Users\\Suimeiii\\Desktop\\Final_C#\\wwwroot\\",
+      "BasePath": "_content/NetTechnology_Final",
+      "RelativePath": "js/404.js",
+      "AssetKind": "All",
+      "AssetMode": "All",
+      "AssetRole": "Primary",
+      "AssetMergeBehavior": "PreferTarget",
+      "AssetMergeSource": "",
+      "RelatedAsset": "",
+      "AssetTraitName": "",
+      "AssetTraitValue": "",
+      "CopyToOutputDirectory": "Never",
+      "CopyToPublishDirectory": "PreserveNewest",
+      "OriginalItemSpec": "wwwroot\\js\\404.js"
     },
     {
       "Identity": "C:\\Users\\Suimeiii\\Desktop\\Final_C#\\wwwroot\\js\\site.js",
