@@ -32,14 +32,12 @@ namespace NetTechnology_Final.Models
         private string _email;
         [Required]
         public string password { get; set; }
+        [EnumDataType(typeof(Role))]
         public Role Role { get; set; }
-        public string Phone {  get; set; }
         public string Name { get; set; }
-        public string Address { get; set; }
-        public string ProfilePicture { get; set; }
+        public string Avatar { get; set; }
+        [EnumDataType(typeof(Status))]
         public Status Status { get; set; }
-        public DateTime CreatedAt { get; set; }
-        public DateTime UpdatedAt { get; set; }
 
         public Accounts()
         {
@@ -57,8 +55,7 @@ namespace NetTechnology_Final.Models
     public enum Role
     {
         Admin,
-        Salesperson, 
-        Customer
+        Salesperson, Customer
     }
 
     public enum Status

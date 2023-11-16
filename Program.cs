@@ -1,5 +1,6 @@
-﻿using Microsoft.AspNetCore.Authentication.Cookies;
-using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.Authentication.Cookies;
+using Microsoft.EntityFrameworkCore;
+using NetTechnology_Final.Context;
 using NetTechnology_Final.Services.EmailService;
 
 namespace NetTechnology_Final
@@ -11,7 +12,7 @@ namespace NetTechnology_Final
             var builder = WebApplication.CreateBuilder(args);
 
             // Add services to the container.
-            builder.Services.AddControllersWithViews();
+            builder.Services.AddControllersWithViews().AddRazorRuntimeCompilation();
             builder.Services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationScheme)
                 .AddCookie(option =>
                 {
@@ -19,8 +20,10 @@ namespace NetTechnology_Final
 
                 });
             builder.Services.AddScoped<IEmailService, EmailService>();
+            builder.Services.AddDbContext<ApplicationDbContext>(options => options.
+                UseSqlServer(builder.Configuration.GetConnectionString("Conn")));
             var app = builder.Build();
-            
+
 
             // Configure the HTTP request pipeline.
             if (!app.Environment.IsDevelopment())
