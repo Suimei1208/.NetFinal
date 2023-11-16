@@ -6,6 +6,7 @@ using Microsoft.VisualStudio.Web.CodeGenerators.Mvc.Templates.Blazor;
 using NetTechnology_Final.Context;
 using NetTechnology_Final.Models;
 using NetTechnology_Final.Services.EmailService;
+using NuGet.Common;
 
 namespace NetTechnology_Final.Controllers
 {
@@ -40,7 +41,7 @@ namespace NetTechnology_Final.Controllers
                     CreateDate = DateTime.UtcNow,
                     Token = token,
                     TokenExpiration = DateTime.UtcNow.AddMinutes(1)                   
-            };
+                };
                 
                 _context.Accounts.Add(NewSale);
                 await _context.SaveChangesAsync();
@@ -77,7 +78,8 @@ namespace NetTechnology_Final.Controllers
                 {
                     if (tokenInfo.TokenExpiration > tokenExpiration)
                     {
-                        // Mã chưa hết hạn, xử lý tiếp theo
+                    // Mã chưa hết hạn, xử lý tiếp theo
+                        ViewBag.Message = tokenInfo.Email;
                         return View();
                     }
                     else
@@ -91,11 +93,30 @@ namespace NetTechnology_Final.Controllers
                                 
         }
 
+        [HttpPost]
+        public IActionResult CreatePassword(Accounts accounts, string confirmPassword, string email)
+        {           
+            if (accounts.password != confirmPassword)
+            {
+                ModelState.AddModelError("password", "The password and confirmation password do not match.");
+                return View();
+            }
+            else
+            {
+                var existingAccount =  _context.Accounts
+            .FirstOrDefault(a => a.Email == email);
 
-        /*public IActionResult CreatePassword(Accounts accounts)
-        {
-            return Json(accounts);
-        }*/
+                if (existingAccount != null)
+                {
+                    existingAccount.password = accounts.password;
+                    existingAccount.Status = Status.Active;
+
+                    _context.SaveChangesAsync();
+                    return RedirectToAction("Login", "Accounts");
+                }
+                else return Json(existingAccount);
+            }               
+        }
 
         public string GetUsernameFromEmail(string email)
         {

@@ -53,6 +53,7 @@ namespace NetTechnology_Final.Controllers
             var claims = new List<Claim>()
             {
                 new(ClaimTypes.Name, account.Name),
+                new(ClaimTypes.Email, account.Email),
                 new (ClaimTypes.Role, account.Role.ToString())
             };
             var identity = new ClaimsIdentity(claims, CookieAuthenticationDefaults.AuthenticationScheme);

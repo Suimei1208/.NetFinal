@@ -9,27 +9,6 @@ namespace NetTechnology_Final.Models
         [Key]
         [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
         public int Id { get; set; }
-        public string username { get; set; }
-
-        [Required]
-        [EmailAddress(ErrorMessage = "Invalid email address")]
-        public string Email
-        {
-            get { return _email; }
-            set
-            {
-                if (IsValidEmail(value))
-                {
-                    _email = value;
-                }
-                else
-                {
-                    throw new ArgumentException("Invalid email address");
-                }
-            }
-        }
-
-        private string _email;
         public string? password { get; set; }
         [EnumDataType(typeof(Role))]
         public Role Role { get; set; }
@@ -40,21 +19,9 @@ namespace NetTechnology_Final.Models
         {
            Role = Role.Customer;
         }
-
         public string Address { get; set; }
         public string? Avatar { get; set; }
-        [EnumDataType(typeof(Status))]
-        public Status Status { get; set; }
-        public DateTime CreateDate { get; set; }
-        public string? Token { get; set; }
-        public DateTime? TokenExpiration { get; set; }
-
-        private bool IsValidEmail(string email)
-        {
-            string pattern = @"@gmail\.com$";
-            Regex regex = new Regex(pattern, RegexOptions.IgnoreCase);
-            return regex.IsMatch(email);
-        }
+        public DateTime CreateDate { get; set; }      
     } 
 }
 
