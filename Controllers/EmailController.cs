@@ -2,11 +2,10 @@
 using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.VisualStudio.Web.CodeGenerators.Mvc.Templates.Blazor;
 using NetTechnology_Final.Context;
 using NetTechnology_Final.Models;
 using NetTechnology_Final.Services.EmailService;
-using NuGet.Common;
+
 
 namespace NetTechnology_Final.Controllers
 {

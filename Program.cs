@@ -13,12 +13,12 @@ namespace NetTechnology_Final
 
             // Add services to the container.
             builder.Services.AddControllersWithViews().AddRazorRuntimeCompilation();
-            builder.Services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationScheme)
+           builder.Services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationScheme)
                 .AddCookie(option =>
                 {
                     option.LoginPath = "/Accounts/Login";
                     option.AccessDeniedPath = "/Error/notfound";
-
+ 
                 });
             builder.Services.AddScoped<IEmailService, EmailService>();
             builder.Services.AddHttpContextAccessor();
