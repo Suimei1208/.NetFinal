@@ -31,13 +31,25 @@
                             </li>
                         </ul>
                     </div>
-                    <li class="nav-item">
-                        <a class="nav-link text-dark" href="#">@User.Identity.Name</a>
-                        <a class="nav-link text-dark" asp-area="" asp-controller="Accounts" asp-action="Logout">Log out</a>
-                    </li>
+                    <div class="navbar-collapse collapse d-sm-inline-flex justify-content-between ml-auto">
+                        <ul class="navbar-nav flex-grow-1 ml-auto">
+                            <li class="nav-item">
+                            <a class="nav-link text-dark" href="#">@User.Identity.Name</a>
+               
+                            </li>
+                            <li class="nav-item">
+                         
+                                <a class="nav-link text-dark" asp-area="" asp-controller="Accounts" asp-action="Logout">Log out</a>
+                            </li>
+                        </ul>
+                        
+                    </div>
+                    
                 </div>
             </nav>
         </header>
+
+
     }
     <div class="container">
         <main role="main" class="pb-3">
