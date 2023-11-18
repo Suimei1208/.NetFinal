@@ -70,12 +70,12 @@ namespace NetTechnology_Final.Controllers
 			string token = _httpContextAccessor.HttpContext.Request.Query["token"];
 			if (token != null)
             {
-                if (_tokenService.IsTokenExpired(token) == false)
-                {
+                /*if (_tokenService.IsTokenExpired(token) == false)
+                {*/
                     // Mã chưa hết hạn, xử lý tiếp theo
                     ViewBag.Message = token;
                     return View();
-                }
+                //}
             }                        
             return RedirectToAction("notfound", "Error");
                                 
@@ -100,10 +100,10 @@ namespace NetTechnology_Final.Controllers
                     existingAccount.password = PasswordHashingWithSalt.HashPasswordWithKey(accounts.password);
                     existingAccount.Status = Status.Active;
 
-                    _context.SaveChangesAsync();
-					return Json(existingAccount.password);
+                    _context.SaveChanges();
+					return Json(existingAccount);
 				}
-                else return Json(ConvertEmail);
+                else return View();
             }               
         }
 
