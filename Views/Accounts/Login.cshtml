@@ -25,11 +25,12 @@
                   </svg><span class="hidden">Password</span></label>
                     <input id="login__password" type="password" name="password" class="form__input" placeholder="Password" asp-for="password" required>
               </div>
-
+            <div class="g-recaptcha" data-sitekey="6Leo1hMpAAAAAD7Q7SWVrBlJiJXLX9Gynelms6Le"></div>
               <div class="form__field">
                 <input type="submit" value="Sign In">
               </div>
 
+            <span asp-validation-for="Role" class="text-danger"></span>
             </form>
           </div>
 
@@ -47,4 +48,4 @@
 
         </body>
 
-
+<script src="https://www.google.com/recaptcha/api.js" async defer></script>

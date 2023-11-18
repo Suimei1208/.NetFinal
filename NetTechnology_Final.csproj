@@ -65,6 +65,9 @@
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
     </PackageReference>
     <PackageReference Include="MimeKit" Version="4.3.0" />
+    <PackageReference Include="Newtonsoft.Json" Version="13.0.3" />
+    <PackageReference Include="Owl.reCAPTCHA" Version="7.0.0" />
+    <PackageReference Include="reCAPTCHA.AspNetCore" Version="3.0.10" />
   </ItemGroup>
 
 </Project>

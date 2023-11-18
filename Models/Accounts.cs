@@ -30,16 +30,15 @@ namespace NetTechnology_Final.Models
         }
 
         private string _email;
-        public string? password { get; set; }
+		[Required]
+		public string password { get; set; }
         [EnumDataType(typeof(Role))]
         public Role Role { get; set; }
         public string Name { get; set; }
         public string? Avatar { get; set; }
         [EnumDataType(typeof(Status))]
         public Status Status { get; set; }
-        public DateTime CreateDate { get; set; }
-        public string? Token {  get; set; }
-        public DateTime? TokenExpiration { get; set; }
+        public DateTime CreateDate { get; set; }     
         public Accounts()
         {
             

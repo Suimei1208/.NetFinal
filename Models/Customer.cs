@@ -9,10 +9,12 @@ namespace NetTechnology_Final.Models
         [Key]
         [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
         public int Id { get; set; }
-        public string? password { get; set; }
+		[Required]
+		public string password { get; set; }
         [EnumDataType(typeof(Role))]
         public Role Role { get; set; }
-        public string Phone { get; set; }
+		[Required]
+		public string Phone { get; set; }
         public string Name { get; set; }
 
         public Customer()

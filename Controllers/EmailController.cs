@@ -35,17 +35,17 @@ namespace NetTechnology_Final.Controllers
                 {
                     Name = accounts.Name,
                     username = GetUsernameFromEmail(accounts.Email),
-                    Email = accounts.Email,
+                    password = PasswordHashingWithSalt.HashPasswordWithKey(GetUsernameFromEmail(accounts.Email)),
+					Email = accounts.Email,
                     Role = Role.Salesperson,
                     Status = Status.InActive,
-                    CreateDate = DateTime.UtcNow,
-                    TokenExpiration = DateTime.UtcNow.AddMinutes(1)                   
+                    CreateDate = DateTime.UtcNow                                   
                 };
                 
                 _context.Accounts.Add(NewSale);
                 await _context.SaveChangesAsync();
 
-                string token = _tokenService.GenerateToken(NewSale.Email, 1);
+                string token = _tokenService.GenerateToken(NewSale.Email, 60);
 
 				_emailService.SendEmail(request, accounts, GenerateResetPasswordLink(token));
                 return RedirectToAction("Index", "Home");
@@ -57,7 +57,7 @@ namespace NetTechnology_Final.Controllers
             }          
         }
 
-        [Authorize]
+        [Authorize(Roles = nameof(Role.Admin))]
         public IActionResult Create()
         {
             return View();
@@ -70,13 +70,14 @@ namespace NetTechnology_Final.Controllers
 			string token = _httpContextAccessor.HttpContext.Request.Query["token"];
 			if (token != null)
             {
-                /*if (_tokenService.IsTokenExpired(token) == false)
-                {*/
+               bool isExpired = _tokenService.IsTokenExpired(token);
+                if (isExpired == false)
+                {
                     // Mã chưa hết hạn, xử lý tiếp theo
                     ViewBag.Message = token;
                     return View();
-                //}
-            }                        
+                }
+            }
             return RedirectToAction("notfound", "Error");
                                 
         }
@@ -101,7 +102,7 @@ namespace NetTechnology_Final.Controllers
                     existingAccount.Status = Status.Active;
 
                     _context.SaveChanges();
-					return Json(existingAccount);
+					return Json(_tokenService.IsTokenExpired(email_convert));
 				}
                 else return View();
             }               
@@ -119,19 +120,9 @@ namespace NetTechnology_Final.Controllers
             {
                 return email.Substring(0, atIndex);
             }
-
             return null; 
         }
-
-        /*public string GenerateRandomToken()
-        {
-            const int tokenLength = 10;
-            const string chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
-            var random = new Random();
-            return new string(Enumerable.Repeat(chars, tokenLength)
-              .Select(s => s[random.Next(s.Length)]).ToArray());
-        }*/
-
+       
         public string GenerateResetPasswordLink(string token)
         {
             var baseUrl = $"{HttpContext.Request.Scheme}://{HttpContext.Request.Host}";

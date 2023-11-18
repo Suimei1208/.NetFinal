@@ -9,26 +9,28 @@ namespace NetTechnology_Final.Services.Hash
 	{
 		private const string SecretKey = "khongthenaocanbuocduocmagaming";
 
-		public string GenerateToken(string email, int seconds)
-		{
-			var tokenHandler = new JwtSecurityTokenHandler();
-			var key = Encoding.ASCII.GetBytes(SecretKey);
+        public string GenerateToken(string email, int seconds)
+        {
+            var tokenHandler = new JwtSecurityTokenHandler();
+            var key = Encoding.ASCII.GetBytes(SecretKey);
 
-			var tokenDescriptor = new SecurityTokenDescriptor
-			{
-				Subject = new ClaimsIdentity(new Claim[]
-				{
-				new Claim(ClaimTypes.Email, email)
-				}),
-				Expires = DateTime.UtcNow.AddSeconds(seconds),
-				SigningCredentials = new SigningCredentials(new SymmetricSecurityKey(key), SecurityAlgorithms.HmacSha256Signature)
-			};
+            var tokenDescriptor = new SecurityTokenDescriptor
+            {
+                Subject = new ClaimsIdentity(new Claim[]
+                {
+					new Claim(ClaimTypes.Email, email),
+					new Claim(ClaimTypes.Expiration, DateTime.UtcNow.AddSeconds(seconds).ToString())
+                }),
+                Expires = DateTime.UtcNow.AddSeconds(seconds),
+                SigningCredentials = new SigningCredentials(new SymmetricSecurityKey(key), SecurityAlgorithms.HmacSha256Signature)
+            };
 
-			var token = tokenHandler.CreateToken(tokenDescriptor);
-			return tokenHandler.WriteToken(token);
-		}
+            var token = tokenHandler.CreateToken(tokenDescriptor);
+            return tokenHandler.WriteToken(token);
+        }
 
-		public string ValidateToken(string token)
+
+        public string ValidateToken(string token)
 		{
 			var tokenHandler = new JwtSecurityTokenHandler();
 
@@ -44,38 +46,36 @@ namespace NetTechnology_Final.Services.Hash
 
 				var principal = tokenHandler.ValidateToken(token, validationParameters, out _);
 
-				// Trích xuất giá trị claim "email" từ token
 				var emailClaim = principal.FindFirst(ClaimTypes.Email);
 				return emailClaim?.Value;
 			}
 			catch (Exception)
 			{
-				// Token không hợp lệ
 				return null;
 			}
 		}
 
-		public bool IsTokenExpired(string token)
-		{
-			var tokenHandler = new JwtSecurityTokenHandler();
+        public bool IsTokenExpired(string token)
+        {
+            var tokenHandler = new JwtSecurityTokenHandler();
 
-			try
-			{
-				var jsonToken = tokenHandler.ReadToken(token) as JwtSecurityToken;
+            try
+            {
+                var jwtToken = (JwtSecurityToken)tokenHandler.ReadToken(token);
 
-				if (jsonToken == null)
-					return true;  // Token không hợp lệ nếu không thể đọc được
+                var expirationDate = jwtToken?.Claims?.FirstOrDefault(claim => claim.Type == ClaimTypes.Expiration)?.Value;
 
-				var expirationTime = jsonToken.ValidTo;
+                if (!string.IsNullOrEmpty(expirationDate) && DateTime.TryParse(expirationDate, out var expirationDateTime))
+                {
+                    return expirationDateTime < DateTime.UtcNow;
+                }
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Error checking token expiration: {ex.Message}");
+            }
 
-				// So sánh với thời điểm hiện tại
-				return expirationTime <= DateTime.UtcNow;
-			}
-			catch (Exception)
-			{
-				return true;  // Token không hợp lệ nếu xảy ra lỗi
-			}
-		}
-
-	}
+            return false;
+        }
+    }
 }

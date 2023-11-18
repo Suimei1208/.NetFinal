@@ -1,10 +1,12 @@
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Configuration;
 using Microsoft.IdentityModel.Tokens;
 using NetTechnology_Final.Context;
 using NetTechnology_Final.Services.EmailService;
 using NetTechnology_Final.Services.Hash;
+using reCAPTCHA.AspNetCore;
 using System.Text;
 
 namespace NetTechnology_Final
@@ -38,6 +40,7 @@ namespace NetTechnology_Final
                     };
                 }
                     );*/
+            builder.Services.AddRecaptcha(builder.Configuration.GetSection("Recaptcha"));
             builder.Services.AddTransient<TokenService>();
             builder.Services.AddScoped<IEmailService, EmailService>();
             builder.Services.AddHttpContextAccessor();
