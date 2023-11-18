@@ -5,7 +5,7 @@ using Microsoft.EntityFrameworkCore;
 using NetTechnology_Final.Context;
 using NetTechnology_Final.Models;
 using NetTechnology_Final.Services.EmailService;
-
+using NetTechnology_Final.Services.Hash;
 
 namespace NetTechnology_Final.Controllers
 {
@@ -107,7 +107,7 @@ namespace NetTechnology_Final.Controllers
 
                 if (existingAccount != null)
                 {
-                    existingAccount.password = accounts.password;
+                    existingAccount.password = PasswordHashingWithSalt.HashPasswordWithKey(accounts.password);
                     existingAccount.Status = Status.Active;
 
                     _context.SaveChangesAsync();

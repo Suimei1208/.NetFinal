@@ -9,6 +9,7 @@ using System.Net.Mail;
 using MimeKit;
 using Microsoft.EntityFrameworkCore;
 using NetTechnology_Final.Context;
+using NetTechnology_Final.Services.Hash;
 
 namespace NetTechnology_Final.Controllers
 {
@@ -36,16 +37,20 @@ namespace NetTechnology_Final.Controllers
             {
                 return View();
             }
+
+			string hashedPassword = PasswordHashingWithSalt.HashPasswordWithKey(account.password);
+
             var adminAccount = await _context.Accounts
-            .FirstOrDefaultAsync(a => a.username == account.username && a.password == account.password);
+            .FirstOrDefaultAsync(a => a.username == account.username && a.password == hashedPassword);
 
             if (adminAccount != null)
             {
                 await saveLogin(adminAccount);
                 return RedirectToAction("Index", "Home");
             }
-            
+
             return View();
+            //return Json(hashedPassword);
         }
 
         private async Task saveLogin(Accounts account)
