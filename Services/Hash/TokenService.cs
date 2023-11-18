@@ -54,5 +54,28 @@ namespace NetTechnology_Final.Services.Hash
 				return null;
 			}
 		}
+
+		public bool IsTokenExpired(string token)
+		{
+			var tokenHandler = new JwtSecurityTokenHandler();
+
+			try
+			{
+				var jsonToken = tokenHandler.ReadToken(token) as JwtSecurityToken;
+
+				if (jsonToken == null)
+					return true;  // Token không hợp lệ nếu không thể đọc được
+
+				var expirationTime = jsonToken.ValidTo;
+
+				// So sánh với thời điểm hiện tại
+				return expirationTime <= DateTime.UtcNow;
+			}
+			catch (Exception)
+			{
+				return true;  // Token không hợp lệ nếu xảy ra lỗi
+			}
+		}
+
 	}
 }

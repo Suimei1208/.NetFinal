@@ -12,12 +12,14 @@ namespace NetTechnology_Final.Controllers
     public class EmailController : Controller
     {
         private readonly ApplicationDbContext _context;
-        private readonly IHttpContextAccessor _httpContextAccessor;
         public readonly IEmailService _emailService;
-        public EmailController(IEmailService emailService, ApplicationDbContext context, IHttpContextAccessor httpContextAccessor)
+        public readonly TokenService _tokenService;
+		private readonly IHttpContextAccessor _httpContextAccessor;
+		public EmailController(IEmailService emailService, ApplicationDbContext context, TokenService tokenService, IHttpContextAccessor httpContextAccessor)
         {
             _emailService = emailService;
             _context = context;
+			_tokenService = tokenService;
             _httpContextAccessor = httpContextAccessor;
         }
 
@@ -28,8 +30,7 @@ namespace NetTechnology_Final.Controllers
             var Sale = await _context.Accounts
             .FirstOrDefaultAsync(a => a.Email == accounts.Email);
             if (Sale == null)
-            {
-                var token = GenerateRandomToken();
+            {               
                 var NewSale = new Accounts
                 {
                     Name = accounts.Name,
@@ -38,14 +39,15 @@ namespace NetTechnology_Final.Controllers
                     Role = Role.Salesperson,
                     Status = Status.InActive,
                     CreateDate = DateTime.UtcNow,
-                    Token = token,
                     TokenExpiration = DateTime.UtcNow.AddMinutes(1)                   
                 };
                 
                 _context.Accounts.Add(NewSale);
                 await _context.SaveChangesAsync();
 
-                _emailService.SendEmail(request, accounts, GenerateResetPasswordLink(token));
+                string token = _tokenService.GenerateToken(NewSale.Email, 1);
+
+				_emailService.SendEmail(request, accounts, GenerateResetPasswordLink(token));
                 return RedirectToAction("Index", "Home");
             }
             else
@@ -65,35 +67,22 @@ namespace NetTechnology_Final.Controllers
         //CreatePassword page
         public IActionResult CreatePassword()
         {
-            string token = _httpContextAccessor.HttpContext.Request.Query["token"];
-
-            var tokenInfo = _context.Accounts.FirstOrDefault(a => a.Token == token);
-
-            if (tokenInfo != null)
+			string token = _httpContextAccessor.HttpContext.Request.Query["token"];
+			if (token != null)
             {
-                DateTime tokenExpiration = DateTime.UtcNow;
-
-                if (tokenInfo.TokenExpiration != null)
+                if (_tokenService.IsTokenExpired(token) == false)
                 {
-                    if (tokenInfo.TokenExpiration > tokenExpiration)
-                    {
                     // Mã chưa hết hạn, xử lý tiếp theo
-                        ViewBag.Message = tokenInfo.Email;
-                        return View();
-                    }
-                    else
-                    {
-                        // Mã đã hết hạn, chuyển hướng đến trang notfound
-                        return RedirectToAction("notfound", "Error");
-                    }
-                }              
+                    ViewBag.Message = token;
+                    return View();
+                }
             }                        
             return RedirectToAction("notfound", "Error");
                                 
         }
 
         [HttpPost]
-        public IActionResult CreatePassword(Accounts accounts, string confirmPassword, string email)
+        public IActionResult CreatePassword(Accounts accounts, string confirmPassword, string email_convert)
         {           
             if (accounts.password != confirmPassword)
             {
@@ -102,8 +91,9 @@ namespace NetTechnology_Final.Controllers
             }
             else
             {
-                var existingAccount =  _context.Accounts
-            .FirstOrDefault(a => a.Email == email);
+				string ConvertEmail = _tokenService.ValidateToken(email_convert);
+				var existingAccount =  _context.Accounts
+            .FirstOrDefault(a => a.Email == ConvertEmail);
 
                 if (existingAccount != null)
                 {
@@ -111,9 +101,9 @@ namespace NetTechnology_Final.Controllers
                     existingAccount.Status = Status.Active;
 
                     _context.SaveChangesAsync();
-                    return RedirectToAction("Login", "Accounts");
-                }
-                else return Json(existingAccount);
+					return Json(existingAccount.password);
+				}
+                else return Json(ConvertEmail);
             }               
         }
 
@@ -133,14 +123,14 @@ namespace NetTechnology_Final.Controllers
             return null; 
         }
 
-        public string GenerateRandomToken()
+        /*public string GenerateRandomToken()
         {
             const int tokenLength = 10;
             const string chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
             var random = new Random();
             return new string(Enumerable.Repeat(chars, tokenLength)
               .Select(s => s[random.Next(s.Length)]).ToArray());
-        }
+        }*/
 
         public string GenerateResetPasswordLink(string token)
         {
