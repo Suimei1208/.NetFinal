@@ -28,6 +28,50 @@ namespace NetTechnology_Final.Controllers
             this.recaptchaService = recaptchaService;
         }
 
+        //[HttpPost]
+        public IActionResult Delete(int id)
+        {
+            var acc = _context.Accounts.Find(id);
+            if (acc == null)
+            {
+                return NotFound();
+            }
+            return View(acc);
+        }
+
+        //[HttpPost]
+        public IActionResult Edit(int id)
+        {
+            var acc = _context.Accounts.Find(id);
+            if (acc == null)
+            {
+                return NotFound();
+            }
+            return View(acc);
+        }
+
+        //[HttpPost]
+        public IActionResult Details(int id)
+        {
+            var acc = _context.Accounts.Find(id);
+            if (acc == null)
+            {
+                return NotFound();
+            }
+            return View(acc);
+        }
+
+        public IActionResult List()
+        {
+            return View(_context.Accounts);
+        }
+
+        public IActionResult UserEdit()
+        {
+            
+            return View();
+        }
+
         [AllowAnonymous]
         [OnlyUnauthenticated]
         public IActionResult Login()
