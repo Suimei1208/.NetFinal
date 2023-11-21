@@ -1,4 +1,5 @@
-﻿<!DOCTYPE html>
+﻿@using System.Security.Claims;
+<!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="utf-8" />
@@ -25,11 +26,11 @@
 
                 <div class="rightContent">
                     <a asp-area="" asp-controller="Accounts" asp-action="UserEdit" >@User.Identity.Name</a>
+                    <a asp-area="" asp-controller="Accounts" asp-action="ChangePassword" asp-route-id="@User.FindFirst(ClaimTypes.NameIdentifier)?.Value.ToString()">Change Password</a>
                     <a asp-area="" asp-controller="Accounts" asp-action="Logout">Log out</a>
               </div>
             </div>
         </header>
-
 
     }
     <div class="container">

@@ -102,6 +102,41 @@ namespace NetTechnology_Final.Controllers
             return View();
         }
 
+        [Authorize]
+        public IActionResult ChangePassword(int id)
+        {
+            var acc = _context.Accounts.Find(id);
+            if (acc == null)
+            {
+                return NotFound();
+            }
+            return View(acc);
+        }
+
+        [HttpPost]
+        public async Task<IActionResult> ChangePassword(int id,  string old_password, string new_password, string confirmPassword)
+        {
+            string hashedPassword = PasswordHashingWithSalt.HashPasswordWithKey(old_password);
+            var acc = await _context.Accounts.FirstOrDefaultAsync(a => a.Id == id && a.password == hashedPassword);
+            if(acc != null)
+            {
+                if(confirmPassword == new_password)
+                {
+                    acc.password = PasswordHashingWithSalt.HashPasswordWithKey(new_password);
+                    await _context.SaveChangesAsync();
+
+                    HttpContext.SignOutAsync();
+                    return RedirectToAction("Login", "Accounts");
+                }
+                else
+                {
+                    ModelState.AddModelError("password", "The password and confirmation password do not match.");
+                    return View(acc);
+                }
+            }
+            return View();
+        }
+
         [AllowAnonymous]
         [OnlyUnauthenticated]
         public IActionResult Login()
@@ -155,7 +190,8 @@ namespace NetTechnology_Final.Controllers
             {
                 new(ClaimTypes.Name, account.Name),
                 new(ClaimTypes.Email, account.Email),
-                new (ClaimTypes.Role, account.Role.ToString())
+                new (ClaimTypes.Role, account.Role.ToString()),
+                new(ClaimTypes.NameIdentifier, account.Id.ToString())
             };
             var identity = new ClaimsIdentity(claims, CookieAuthenticationDefaults.AuthenticationScheme);
             var principal = new ClaimsPrincipal(identity);
@@ -166,6 +202,7 @@ namespace NetTechnology_Final.Controllers
             HttpContext.SignOutAsync();
             return RedirectToAction("Login", "Accounts");
         }
+
 
         
        
