@@ -23,28 +23,27 @@
             @Html.DisplayFor(model => model.Email)
         </dd>
         <dt class = "col-sm-2">
-            @Html.DisplayNameFor(model => model.password)
-        </dt>
-        <dd class = "col-sm-10">
-            @Html.DisplayFor(model => model.password)
-        </dd>
-        <dt class = "col-sm-2">
             @Html.DisplayNameFor(model => model.Role)
         </dt>
         <dd class = "col-sm-10">
-            @Html.DisplayFor(model => model.Role)
+            @if (Model.Role == Role.Salesperson)
+            {
+                <span>Sale Person</span>
+            }
+            else if (Model.Role == Role.Admin)
+            {
+                <span>Administrator</span>
+            }
+            else
+            {
+                <span>Customer</span>
+            }
         </dd>
         <dt class = "col-sm-2">
             @Html.DisplayNameFor(model => model.Name)
         </dt>
         <dd class = "col-sm-10">
             @Html.DisplayFor(model => model.Name)
-        </dd>
-        <dt class = "col-sm-2">
-            @Html.DisplayNameFor(model => model.Avatar)
-        </dt>
-        <dd class = "col-sm-10">
-            @Html.DisplayFor(model => model.Avatar)
         </dd>
         <dt class = "col-sm-2">
             @Html.DisplayNameFor(model => model.Status)

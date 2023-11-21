@@ -3,6 +3,23 @@
 @{
     ViewData["Title"] = "View";
 }
+<style>
+    .status-active {
+        color: green; /* Màu xanh cho trạng thái Active */
+        font-weight: bold;
+    }
+
+    .status-inactive {
+        color: red; /* Màu đỏ cho trạng thái Inactive */
+        font-weight: bold;
+    }
+
+    .status-block {
+        color: gray; /* Màu xám cho trạng thái Block */
+        font-weight: bold; 
+    }
+
+</style>
 
 <h1>View</h1>
 
@@ -32,7 +49,7 @@
     </thead>
     <tbody>
 @foreach (var item in Model) {
-        <tr>
+        <tr class="GetStatusClass(@item.Status)">
             <td>
                 @Html.DisplayFor(modelItem => item.Name)
             </td>
@@ -40,20 +57,63 @@
                 @Html.DisplayFor(modelItem => item.Email)
             </td>
             <td>
-                @Html.DisplayFor(modelItem => item.Role)
-            </td>
-            <td>
+                    @if(item.Role == Role.Salesperson)
+                    {
+                        <span>Sale Person</span>
+                    }
+                    else if (item.Role == Role.Admin)
+                    {
+                        <span>Administrator</span>
+                    }
+                    else
+                    {
+                        <span>Customer</span>
+                    }
+                </td>
+            <td class="@GetStatusClass(item.Status.ToString())">
                 @Html.DisplayFor(modelItem => item.Status)
             </td>
             <td>
                 @Html.DisplayFor(modelItem => item.CreateDate)
             </td>
             <td>
-                <a asp-action="Edit" asp-route-id="@item.Id">Edit</a> |
-                    <a asp-action="Details" asp-route-id="@item.Id">Details</a> |
-                    <a asp-action="Delete" asp-route-id="@item.Id">Delete</a>
+                    @if (User.Identity.Name == item.Name)
+                    {
+                        <a asp-action="Edit" asp-route-id="@item.Id">Edit</a>
+                        <span>|</span>
+                        <a asp-action="Details" asp-route-id="@item.Id">Details</a>
+                    }
+                    else{
+                        <a asp-action="Edit" asp-route-id="@item.Id">Edit</a>
+                        <span>|</span>
+
+                        <a asp-action="Details" asp-route-id="@item.Id">Details</a>
+                        <span>|</span>
+                        <a asp-action="Delete" asp-route-id="@item.Id"> Delete </a>                       
+                     }
+                       
             </td>
         </tr>
 }
     </tbody>
 </table>
+
+            <script>
+    @functions {
+        string GetStatusClass(string status)
+        {
+            switch (status)
+            {
+                case "Active":
+                    return "status-active";
+                case "InActive":
+                    return "status-inactive";
+                case "Block":
+                    return "status-block";
+                default:
+                    return "";
+            }
+        }
+    }
+
+            </script>

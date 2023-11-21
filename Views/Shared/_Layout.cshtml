@@ -16,8 +16,11 @@
             <div class="navbar">
                 <div class="normalContent">
                   <a asp-area="" asp-controller="Home" asp-action="Index"><strong>DotNetTechnology Final</strong></a>
-                  <a asp-area="" asp-controller="Accounts" asp-action="List">Account List</a>
-                  <a asp-area="" asp-controller="Email" asp-action="Create">Create Customer</a>
+                @if (User.IsInRole("Admin"))
+                {
+                        <a asp-area="" asp-controller="Accounts" asp-action="List">Account List</a>
+                        <a asp-area="" asp-controller="Email" asp-action="Create">Create Customer</a>
+                  }               
               </div>
 
                 <div class="rightContent">

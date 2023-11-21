@@ -65,6 +65,7 @@ namespace NetTechnology_Final.Controllers
 
 
         //CreatePassword page
+        [AllowAnonymous]
         public IActionResult CreatePassword()
         {
 			string token = _httpContextAccessor.HttpContext.Request.Query["token"];

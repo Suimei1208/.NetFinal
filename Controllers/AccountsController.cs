@@ -28,7 +28,7 @@ namespace NetTechnology_Final.Controllers
             this.recaptchaService = recaptchaService;
         }
 
-        //[HttpPost]
+        [Authorize(Roles = "Admin")]
         public IActionResult Delete(int id)
         {
             var acc = _context.Accounts.Find(id);
@@ -39,7 +39,21 @@ namespace NetTechnology_Final.Controllers
             return View(acc);
         }
 
-        //[HttpPost]
+        [HttpPost]
+        public async Task<IActionResult> DeleteUser(int Id)
+        {
+            var acc = _context.Accounts.Find(Id);
+            if (acc == null)
+            {
+                return NotFound();
+            }
+            _context.Accounts.Remove(acc);
+            await _context.SaveChangesAsync();
+
+            return RedirectToAction("List", "Accounts");
+        }
+
+        [Authorize(Roles = "Admin")]
         public IActionResult Edit(int id)
         {
             var acc = _context.Accounts.Find(id);
@@ -50,7 +64,22 @@ namespace NetTechnology_Final.Controllers
             return View(acc);
         }
 
-        //[HttpPost]
+        [HttpPost]
+        public async Task<IActionResult> Edit(int id, Accounts accounts){
+            var acc = _context.Accounts.Find(id);
+            if (acc == null)
+            {
+                return NotFound();
+            }
+            acc.Status = accounts.Status;
+            acc.Name = accounts.Name;
+            acc.Role = accounts.Role;
+            await _context.SaveChangesAsync();
+            ModelState.AddModelError("Status", "Change complete!");
+            return View(acc);
+        }
+
+        [Authorize(Roles = "Admin")]
         public IActionResult Details(int id)
         {
             var acc = _context.Accounts.Find(id);
@@ -61,6 +90,7 @@ namespace NetTechnology_Final.Controllers
             return View(acc);
         }
 
+        [Authorize(Roles = "Admin")]
         public IActionResult List()
         {
             return View(_context.Accounts);
