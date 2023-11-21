@@ -96,11 +96,44 @@ namespace NetTechnology_Final.Controllers
             return View(_context.Accounts);
         }
 
-        public IActionResult UserEdit()
+        public IActionResult UserEdit(int id)
         {
-            
-            return View();
+            var acc = _context.Accounts.Find(id);
+            if (acc == null)
+            {
+                return NotFound();
+            }
+            return View(acc);
         }
+
+        [Authorize]
+        [HttpPost]
+        public async Task<IActionResult> UserEdit(int id, Accounts accounts)
+        {
+            // Đổi 
+            var acc = _context.Accounts.Find(id);
+            if (acc == null)
+            {
+                return NotFound();
+            }
+            acc.Status = accounts.Status;
+            acc.Name = accounts.Name;
+            await _context.SaveChangesAsync();
+
+            // Cập nhật lại cái tên trên cái thanh kia
+            var NameUser = (ClaimsIdentity)User.Identity;
+            // Tìm claim có kiểu ClaimTypes.Name trong danh tính người dùng
+            var userNameClaim = NameUser.FindFirst(ClaimTypes.Name);
+            if (userNameClaim != null)
+            {
+                NameUser.RemoveClaim(userNameClaim);  // Xóa claim cũ
+                NameUser.AddClaim(new Claim(ClaimTypes.Name, acc.Name));  // Thêm claim mới
+                await HttpContext.SignInAsync(CookieAuthenticationDefaults.AuthenticationScheme, new ClaimsPrincipal(NameUser));
+            }
+
+            return View(acc);
+        }
+
 
         [Authorize]
         public IActionResult ChangePassword(int id)

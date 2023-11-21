@@ -25,7 +25,7 @@
               </div>
 
                 <div class="rightContent">
-                    <a asp-area="" asp-controller="Accounts" asp-action="UserEdit" >@User.Identity.Name</a>
+                    <a asp-area="" asp-controller="Accounts" asp-action="UserEdit" asp-route-id="@User.FindFirst(ClaimTypes.NameIdentifier)?.Value.ToString()">@User.Identity.Name</a>
                     <a asp-area="" asp-controller="Accounts" asp-action="ChangePassword" asp-route-id="@User.FindFirst(ClaimTypes.NameIdentifier)?.Value.ToString()">Change Password</a>
                     <a asp-area="" asp-controller="Accounts" asp-action="Logout">Log out</a>
               </div>
