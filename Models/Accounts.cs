@@ -35,13 +35,17 @@ namespace NetTechnology_Final.Models
         [EnumDataType(typeof(Role))]
         public Role Role { get; set; }
         public string Name { get; set; }
+        [NotMapped] // Để không được ánh xạ vào cơ sở dữ liệu
+        public IFormFile AvatarFile { get; set; }
         public string? Avatar { get; set; }
         [EnumDataType(typeof(Status))]
         public Status Status { get; set; }
-        public DateTime CreateDate { get; set; }     
+        public DateTime CreateDate { get; set; }
         public Accounts()
         {
-            
+            IFormFile avatarFile = null;
+            // Sử dụng giá trị mặc định khác Stream.Null
+            AvatarFile = avatarFile ?? new FormFile(Stream.Null, 0, 0, "AvatarFile", "avatar.jpg");
         }
 
         private bool IsValidEmail(string email)

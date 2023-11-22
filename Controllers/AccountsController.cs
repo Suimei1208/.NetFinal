@@ -6,7 +6,6 @@ using NetTechnology_Final.Models;
 using System.Security.Claims;
 using Microsoft.AspNetCore.Authorization;
 using System.Net.Mail;
-
 using MimeKit;
 using Microsoft.EntityFrameworkCore;
 using NetTechnology_Final.Context;
@@ -14,6 +13,7 @@ using NetTechnology_Final.Services.Hash;
 using Newtonsoft.Json;
 using NetTechnology_Final.Services;
 using reCAPTCHA.AspNetCore;
+using NetTechnology_Final.Services.IMG;
 
 namespace NetTechnology_Final.Controllers
 {
@@ -21,11 +21,13 @@ namespace NetTechnology_Final.Controllers
     {
         private readonly ApplicationDbContext _context;
         private readonly reCAPTCHA.AspNetCore.IRecaptchaService recaptchaService;
+        private readonly IBlobService _blobService;
 
-        public AccountsController(ApplicationDbContext context, reCAPTCHA.AspNetCore.IRecaptchaService recaptchaService)
+        public AccountsController(ApplicationDbContext context, reCAPTCHA.AspNetCore.IRecaptchaService recaptchaService, IBlobService blobService)
         {
             _context = context;
             this.recaptchaService = recaptchaService;
+            _blobService = blobService;
         }
 
         [Authorize(Roles = "Admin")]
@@ -65,19 +67,33 @@ namespace NetTechnology_Final.Controllers
         }
 
         [HttpPost]
-        public async Task<IActionResult> Edit(int id, Accounts accounts){
-            var acc = _context.Accounts.Find(id);
-            if (acc == null)
+        public async Task<IActionResult> Edit(int id, Accounts accounts)
+        {
+             var acc = _context.Accounts.Find(id);
+             if (acc == null)
+             {
+                 return NotFound();
+             }
+
+             acc.Status = accounts.Status;
+             acc.Name = accounts.Name;
+             acc.Role = accounts.Role;
+            //Nếu có avatar rồi thì xóa
+            if (!string.IsNullOrEmpty(acc.Avatar))
             {
-                return NotFound();
+                await _blobService.DeleteBlobAsync(_blobService.TryGetBlobNameFromUrl(acc.Avatar));
             }
-            acc.Status = accounts.Status;
-            acc.Name = accounts.Name;
-            acc.Role = accounts.Role;
+            acc.Avatar = await _blobService.UploadBlobAsync(accounts.AvatarFile);
+
             await _context.SaveChangesAsync();
-            ModelState.AddModelError("Status", "Change complete!");
-            return View(acc);
+
+             ModelState.AddModelError("Status", "Thay đổi hoàn tất!");
+
+             return View(acc);
         }
+
+        
+
 
         [Authorize(Roles = "Admin")]
         public IActionResult Details(int id)

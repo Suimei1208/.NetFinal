@@ -1,11 +1,16 @@
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.Azure.Storage;
+using Microsoft.Azure.Storage.Auth;
+using Microsoft.Azure.Storage.Blob;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.DependencyInjection;
 using Microsoft.IdentityModel.Tokens;
 using NetTechnology_Final.Context;
 using NetTechnology_Final.Services.EmailService;
 using NetTechnology_Final.Services.Hash;
+using NetTechnology_Final.Services.IMG;
 using reCAPTCHA.AspNetCore;
 using System.Text;
 
@@ -26,20 +31,14 @@ namespace NetTechnology_Final
                     option.AccessDeniedPath = "/Error/notfound";
  
                 });
-            /*builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
-                .AddJwtBearer(option =>
-                {
-                    option.TokenValidationParameters = new TokenValidationParameters
-                    {
-                        ValidateIssuerSigningKey = true,
-                        IssuerSigningKey = new SymmetricSecurityKey(Encoding.ASCII.GetBytes("khongthenaocanbuocduocmagaming")),
-                        ValidateIssuer = false,
-                        ValidateAudience = false,
-                        ValidateLifetime = true,
-                        ClockSkew = TimeSpan.Zero
-                    };
-                }
-                    );*/
+            builder.Services.AddSingleton(x => {
+                var connectionString = x.GetService<IConfiguration>()["AzureStorage:ConnectionString"];
+                var storageCredentials = new StorageCredentials(connectionString);
+                var storageAccountUri = new Uri("https://avatarfinal.blob.core.windows.net/");
+                var storageUri = new StorageUri(storageAccountUri);
+                return new CloudBlobClient(storageAccountUri, storageCredentials);
+            });
+            builder.Services.AddScoped<IBlobService, BlobService>();
             builder.Services.AddRecaptcha(builder.Configuration.GetSection("Recaptcha"));
             builder.Services.AddTransient<TokenService>();
             builder.Services.AddScoped<IEmailService, EmailService>();
