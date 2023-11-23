@@ -20,6 +20,10 @@ namespace NetTechnology_Final.Services.IMG
 
         public async Task<string> UploadBlobAsync(IFormFile file)
         {
+            if (file == null || file.Length == 0)
+            {
+                return null;
+            }
             using (MemoryStream fileUploadStream = new MemoryStream())
             {
                 file.CopyTo(fileUploadStream);

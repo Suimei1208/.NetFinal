@@ -79,11 +79,16 @@ namespace NetTechnology_Final.Controllers
              acc.Name = accounts.Name;
              acc.Role = accounts.Role;
             //Nếu có avatar rồi thì xóa
-            if (!string.IsNullOrEmpty(acc.Avatar))
+            if(accounts.AvatarFile != null && accounts.AvatarFile.Length > 0)
             {
-                await _blobService.DeleteBlobAsync(_blobService.TryGetBlobNameFromUrl(acc.Avatar));
+                if (!string.IsNullOrEmpty(acc.Avatar))
+                {
+                    await _blobService.DeleteBlobAsync(_blobService.TryGetBlobNameFromUrl(acc.Avatar));
+                }
+            
+                acc.Avatar = await _blobService.UploadBlobAsync(accounts.AvatarFile);
+
             }
-            acc.Avatar = await _blobService.UploadBlobAsync(accounts.AvatarFile);
 
             await _context.SaveChangesAsync();
 
@@ -91,9 +96,6 @@ namespace NetTechnology_Final.Controllers
 
              return View(acc);
         }
-
-        
-
 
         [Authorize(Roles = "Admin")]
         public IActionResult Details(int id)
@@ -134,6 +136,16 @@ namespace NetTechnology_Final.Controllers
             }
             acc.Status = accounts.Status;
             acc.Name = accounts.Name;
+            if (accounts.AvatarFile != null && accounts.AvatarFile.Length > 0)
+            {
+                if (!string.IsNullOrEmpty(acc.Avatar))
+                {
+                    await _blobService.DeleteBlobAsync(_blobService.TryGetBlobNameFromUrl(acc.Avatar));
+                }
+
+                acc.Avatar = await _blobService.UploadBlobAsync(accounts.AvatarFile);
+
+            }
             await _context.SaveChangesAsync();
 
             // Cập nhật lại cái tên trên cái thanh kia
@@ -174,6 +186,7 @@ namespace NetTechnology_Final.Controllers
                     acc.password = PasswordHashingWithSalt.HashPasswordWithKey(new_password);
                     await _context.SaveChangesAsync();
 
+                    // đổi thành công rồi thì đăng xuất đăng nhập lại
                     HttpContext.SignOutAsync();
                     return RedirectToAction("Login", "Accounts");
                 }
