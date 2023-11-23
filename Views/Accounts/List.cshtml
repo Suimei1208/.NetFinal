@@ -1,4 +1,4 @@
-﻿@model IEnumerable<NetTechnology_Final.Models.Accounts>
+﻿    @model IEnumerable<NetTechnology_Final.Models.Accounts>
 
 @{
     ViewData["Title"] = "View";
@@ -70,7 +70,7 @@
                         <span>Customer</span>
                     }
                 </td>
-            <td class="@GetStatusClass(item.Status.ToString())">
+            <td>
                 @Html.DisplayFor(modelItem => item.Status)
             </td>
             <td>
@@ -97,23 +97,3 @@
 }
     </tbody>
 </table>
-
-            <script>
-    @functions {
-        string GetStatusClass(string status)
-        {
-            switch (status)
-            {
-                case "Active":
-                    return "status-active";
-                case "InActive":
-                    return "status-inactive";
-                case "Block":
-                    return "status-block";
-                default:
-                    return "";
-            }
-        }
-    }
-
-            </script>
