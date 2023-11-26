@@ -30,18 +30,18 @@ namespace NetTechnology_Final.Controllers
             var Sale = await _context.Accounts
             .FirstOrDefaultAsync(a => a.Email == accounts.Email);
             if (Sale == null)
-            {               
+            {
                 var NewSale = new Accounts
                 {
                     Name = accounts.Name,
                     username = GetUsernameFromEmail(accounts.Email),
                     password = PasswordHashingWithSalt.HashPasswordWithKey(GetUsernameFromEmail(accounts.Email)),
-					Email = accounts.Email,
+                    Email = accounts.Email,
                     Role = Role.Salesperson,
                     Status = Status.InActive,
+                    Avatar = "https://avatarfinal.blob.core.windows.net/alluser/origin.png",
                     CreateDate = DateTime.UtcNow                                   
-                };
-                
+                };            
                 _context.Accounts.Add(NewSale);
                 await _context.SaveChangesAsync();
 

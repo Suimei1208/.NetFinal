@@ -83,11 +83,14 @@ namespace NetTechnology_Final.Controllers
             {
                 if (!string.IsNullOrEmpty(acc.Avatar))
                 {
-                    await _blobService.DeleteBlobAsync(_blobService.TryGetBlobNameFromUrl(acc.Avatar));
+                    // Nếu khác avatar là mặc định thì cần xóa
+                    if(_blobService.TryGetBlobNameFromUrl(acc.Avatar) != "origin.png")
+                    {
+                        await _blobService.DeleteBlobAsync(_blobService.TryGetBlobNameFromUrl(acc.Avatar));
+                    }
                 }
             
                 acc.Avatar = await _blobService.UploadBlobAsync(accounts.AvatarFile);
-
             }
 
             await _context.SaveChangesAsync();
