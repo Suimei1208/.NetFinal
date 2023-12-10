@@ -222,7 +222,7 @@ namespace NetTechnology_Final.Controllers
             {
                 if (adminAccount.Status == Status.Active)
                 {
-                    /*var recaptchaResponse = await this.recaptchaService.Validate(Request);
+                   /* var recaptchaResponse = await this.recaptchaService.Validate(Request);
                     if (!recaptchaResponse.success)
                     {
                         ModelState.AddModelError("Role", "Please click on I'm not a robot");

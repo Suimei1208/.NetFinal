@@ -20,10 +20,11 @@
                 @if (User.IsInRole("Admin"))
                 {
                         <a asp-area="" asp-controller="Accounts" asp-action="List">Account List</a>
-                        <a asp-area="" asp-controller="Email" asp-action="Create">Create Customer</a>
-                  }               
+                        <a asp-area="" asp-controller="Email" asp-action="Create">Create Customer</a>                     
+                  }
+                    <a asp-area="" asp-controller="Products" asp-action="Index">Product Manager</a>
               </div>
-
+                
                 <div class="rightContent">
                     <a asp-area="" asp-controller="Accounts" asp-action="UserEdit" asp-route-id="@User.FindFirst(ClaimTypes.NameIdentifier)?.Value.ToString()">@User.Identity.Name</a>
                     <a asp-area="" asp-controller="Accounts" asp-action="ChangePassword" asp-route-id="@User.FindFirst(ClaimTypes.NameIdentifier)?.Value.ToString()">Change Password</a>

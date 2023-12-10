@@ -8,5 +8,6 @@ namespace NetTechnology_Final.Context
 
         public DbSet<Accounts> Accounts { get; set; }
         public DbSet<Customer> Customers { get; set; }
+        public DbSet<Products> Products { get; set; }
     }
 }
