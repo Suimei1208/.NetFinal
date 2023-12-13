@@ -1,0 +1,275 @@
+﻿using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Threading.Tasks;
+using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc.Rendering;
+using Microsoft.EntityFrameworkCore;
+using NetTechnology_Final.Context;
+using NetTechnology_Final.Models;
+using Newtonsoft.Json;
+
+namespace NetTechnology_Final.Controllers
+{
+    public class OrdersController : Controller
+    {
+        private readonly ApplicationDbContext _context;
+        private List<OrderDetail> _ordersdetail;
+        private List<Orders> _orders;
+
+        public OrdersController(ApplicationDbContext context)
+        {
+            _context = context;
+            _ordersdetail = new List<OrderDetail>();
+            _orders = new List<Orders>();
+        }
+
+        public IActionResult Index(string phone = null)
+        {
+            if (phone != null)
+            {
+                var custclone = _context.Customers.FirstOrDefault(e => e.Phone == phone);
+                _orders = _context.Orders.Where(e => e.CustomerId == custclone.Id).ToList();
+
+                ViewBag.Customer = custclone;
+                ViewBag.Orders = _orders;
+
+                HttpContext.Session.Set("_orders", _orders);
+                HttpContext.Session.Set("_customer", custclone);
+            }
+
+            if (HttpContext.Session.Get<Customer>("_customer") != null)
+            {
+                var custclone = HttpContext.Session.Get<Customer>("_customer");
+                ViewBag.Customer = custclone;
+            }
+
+            if (HttpContext.Session.Get<List<OrderDetail>>("_ordersdetail") != null)
+            {
+                _ordersdetail = HttpContext.Session.Get<List<OrderDetail>>("_ordersdetail");
+                ViewBag.OrderDetails = _ordersdetail;
+            }
+
+            if (HttpContext.Session.Get<List<Orders>>("_orders") != null)
+            {
+                var _orders = HttpContext.Session.Get<List<Orders>>("_orders");
+                ViewBag.Orders = _orders;
+            }
+            ViewBag.Products = _context.Products.ToList();
+            return View();
+        }
+
+
+        private bool CustomerExists(string phone)
+        {
+            return (_context.Customers?.Any(e => e.Phone == phone)).GetValueOrDefault();
+        }
+
+        public dynamic GetViewBag()
+        {
+            return ViewBag;
+        }
+
+        [HttpPost]
+        public IActionResult Index(Customer customer)
+        {
+            if (string.IsNullOrEmpty(customer.Phone))
+            {
+                ModelState.AddModelError("Phone", "The Phone field is required.");
+                return View();
+            }
+            if (customer.Phone.Any(c => !char.IsDigit(c)))
+            {
+                ModelState.AddModelError("Phone", "Phone must only contain numeric characters.");
+                return View();
+            }
+
+            if (CustomerExists(customer.Phone))
+            {
+                var custclone = _context.Customers.FirstOrDefault(e => e.Phone == customer.Phone);
+                var _orders = _context.Orders.Where(e => e.CustomerId == custclone.Id).ToList();
+
+                // Tạo một danh sách chứa cả thông tin Order và Account tương ứng
+                /* var ordersWithAccount = orders.Select(order =>
+                 {
+                     var account = _context.Accounts.FirstOrDefault(account => account.Id == order.AccountId);
+                     return new
+                     {
+                         Order = order,
+                         Account = account
+                     };
+                 }).ToList();*/
+                /*var salerNames =
+       _context.Accounts.FirstOrDefault(account => account.Id == 1);*/
+                HttpContext.Session.Set("_orders", _orders);
+                HttpContext.Session.Set("_customer", custclone);
+                ViewBag.Customer = custclone;
+                ViewBag.Orders = _orders;
+                ViewBag.Products = _context.Products.ToList();
+
+                if (HttpContext.Session.Get<List<OrderDetail>>("_ordersdetail") != null)
+                {
+                    _ordersdetail = HttpContext.Session.Get<List<OrderDetail>>("_ordersdetail");
+                    ViewBag.OrderDetails = _ordersdetail;
+                }
+
+                return View();
+                // return Json(salerNames);
+            }
+            else
+            {
+                ViewBag.CustomerNotFound = true;
+                ViewBag.Phone = customer.Phone;
+
+                if (HttpContext.Session.Get<List<OrderDetail>>("_ordersdetail") != null)
+                {
+                    _ordersdetail = HttpContext.Session.Get<List<OrderDetail>>("_ordersdetail");
+                    ViewBag.OrderDetails = _ordersdetail;
+                }
+                return View();
+            }
+        }
+
+        [HttpPost]
+        public async Task<IActionResult> Create(Customer customer)
+        {
+            var newCustomer = new Customer
+            {
+                Phone = customer.Phone,
+                Name = customer.Name,
+                Address = customer.Address,
+                CreateDate = DateTime.Now,
+            };
+
+            _context.Customers.Add(newCustomer);
+            await _context.SaveChangesAsync();
+
+            return RedirectToAction("Index", new { phone = newCustomer.Phone });
+        }
+
+        [HttpPost]
+        public IActionResult FindProducts(Products products)
+        {
+            // Khởi tạo Session nếu chưa tồn tại
+            if (HttpContext.Session.Get<List<OrderDetail>>("_ordersdetail") == null)
+            {
+                HttpContext.Session.Set("_ordersdetail", new List<OrderDetail>());
+            }
+
+             _ordersdetail = HttpContext.Session.Get<List<OrderDetail>>("_ordersdetail");
+
+            var product = _context.Products.FirstOrDefault(p => p.Barcode == products.Barcode);
+
+            if (product != null)
+            {
+                var existingOrderDetail = _ordersdetail.FirstOrDefault(od => od.ProductId == product.Id);
+
+                if (existingOrderDetail != null)
+                {
+                    // Nếu sản phẩm đã có trong danh sách, tăng số lượng
+                    existingOrderDetail.Quantity++;
+                    existingOrderDetail.UnitPrice = existingOrderDetail.UnitPrice + product.RetailPrice;
+                }
+                else
+                {
+                    // Nếu sản phẩm chưa có trong danh sách, thêm một OrderDetail mới
+                    var orderDetail = new OrderDetail
+                    {
+                        ProductId = product.Id,
+                        Quantity = 1,
+                        UnitPrice = product.RetailPrice,
+                        Products = product
+                    };
+
+                    _ordersdetail.Add(orderDetail);
+                }
+            }
+
+            HttpContext.Session.Set("_ordersdetail", _ordersdetail);
+            ViewBag.OrderDetails = _ordersdetail;
+
+            if (HttpContext.Session.Get<Customer>("_customer") != null)
+            {
+                var custclone = HttpContext.Session.Get<Customer>("_customer");
+                ViewBag.Customer = custclone;
+            }
+
+            if (HttpContext.Session.Get<List<Orders>>("_orders") != null)
+            {
+                _orders = HttpContext.Session.Get<List<Orders>>("_orders");
+                ViewBag.Orders = _orders;
+            }
+            ViewBag.Products = _context.Products.ToList();
+
+            return View("Index");
+        }
+
+        [HttpPost]
+        public IActionResult addDetail(string Quantities, string ProductName, string RetailPrice)
+        {
+            ViewBag.Products = _context.Products.ToList();
+            _ordersdetail = HttpContext.Session.Get<List<OrderDetail>>("_ordersdetail");
+            if (_ordersdetail == null)
+            {
+                _ordersdetail = new List<OrderDetail>();
+            }
+            if (HttpContext.Session.Get<Customer>("_customer") != null)
+            {
+                var custclone = HttpContext.Session.Get<Customer>("_customer");
+                ViewBag.Customer = custclone;
+            }
+
+            if (HttpContext.Session.Get<List<Orders>>("_orders") != null)
+            {
+                _orders = HttpContext.Session.Get<List<Orders>>("_orders");
+                ViewBag.Orders = _orders;
+            }
+
+            if (HttpContext.Session.Get<List<OrderDetail>>("_ordersdetail") != null)
+            {
+                _ordersdetail = HttpContext.Session.Get<List<OrderDetail>>("_ordersdetail");
+                ViewBag.OrderDetails = _ordersdetail;
+            }
+
+            var product = _context.Products.FirstOrDefault(p => p.ProductName == ProductName);
+            var existingOrderDetail = _ordersdetail.FirstOrDefault(od => od.ProductId == product.Id);
+            if (existingOrderDetail != null)
+            {
+                existingOrderDetail.Quantity = existingOrderDetail.Quantity + int.Parse(Quantities);
+                existingOrderDetail.UnitPrice = existingOrderDetail.UnitPrice + long.Parse(RetailPrice);
+            }
+            else
+            {
+                var orderDetail = new OrderDetail
+                {
+                    ProductId = product.Id,
+                    Quantity = int.Parse(Quantities),
+                    UnitPrice = long.Parse(RetailPrice),
+                    Products = product
+                };
+                _ordersdetail.Add(orderDetail);
+            }
+            HttpContext.Session.Set("_ordersdetail", _ordersdetail);
+            ViewBag.OrderDetails = _ordersdetail;
+
+            return RedirectToAction("Index");
+            //return Json(ProductName);
+        }
+
+
+    }
+    public static class SessionExtensions
+    {
+        public static void Set<T>(this ISession session, string key, T value)
+        {
+            session.SetString(key, JsonConvert.SerializeObject(value));
+        }
+            
+        public static T Get<T>(this ISession session, string key)
+        {
+            var value = session.GetString(key);
+            return value == null ? default(T) : JsonConvert.DeserializeObject<T>(value);
+        }
+    }
+
+}

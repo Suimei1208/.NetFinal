@@ -1,0 +1,194 @@
+﻿@model dynamic
+
+<div style="display: flex; justify-content: space-between;">
+
+    <!-- Phần bên trái - Product List -->
+    <div style="width: 30%;">
+        @if (ViewBag.Products != null)
+        {
+            <table class="table">
+                <thead>
+                    <tr>
+                        <th>Name Product</th>
+                        <th>Price</th>
+                        <th>Quantity</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var order in ViewBag.Products)
+                    {
+                        <form id="orderForm" method="post" asp-controller="Orders" asp-action="addDetail">
+                            <tr>
+                                <input type="hidden" name="ProductName" value="@order.ProductName" />
+                                <input type="hidden" name="RetailPrice" value="@order.RetailPrice" />
+                                <td>@order.ProductName</td>
+                                <td>@order.RetailPrice.ToString("N0", System.Globalization.CultureInfo.GetCultureInfo("vi-VN")) VND</td>
+                                <td>
+                                    <div class="quantity-controls">
+                                        <button class="quantity-control-btn" data-action="decrease" type="button">-</button>
+                                        <input type="number" class="quantity-input" value="1" min="1" name="Quantities" />
+                                        <button class="quantity-control-btn" data-action="increase" type="button">+</button>
+                                        <button class="quantity-control-btn" data-action="add" type="submit">Add</button>
+                                    </div>
+                                </td>
+                            </tr>
+                        </form>
+                    }
+                </tbody>
+            </table>
+            }
+            <script>
+                document.addEventListener("DOMContentLoaded", function () {
+                    var quantityControls = document.querySelectorAll('.quantity-controls');
+                    var hiddenQuantitiesInput = document.getElementById('hiddenQuantities');
+
+                    quantityControls.forEach(function (controls, index) {
+                        var input = controls.querySelector('.quantity-input');
+                        var decreaseBtn = controls.querySelector('[data-action="decrease"]');
+                        var increaseBtn = controls.querySelector('[data-action="increase"]');
+
+                        decreaseBtn.addEventListener('click', function () {
+                            var currentValue = parseInt(input.value, 10);
+                            if (currentValue > 1) {
+                                input.value = currentValue - 1;
+                                hiddenQuantitiesInput.value = input.value; 
+                            }
+                        });
+
+                        increaseBtn.addEventListener('click', function () {
+                            var currentValue = parseInt(input.value, 10);
+                            input.value = currentValue + 1;
+                            hiddenQuantitiesInput.value = input.value; 
+                        });
+                    });
+                });
+            </script>
+        
+    </div>
+
+    <!-- Phần giữa - Barcode Input và Product Listing -->
+    <div style="width: 30%;">
+        <form method="post" asp-controller="Orders" asp-action="FindProducts">
+            <input type="text" placeholder="Barcode" name="Barcode" />
+            <button type="submit">Find Products</button>
+            <span class="text-danger">@Html.ValidationMessage("Barcode")</span>
+        </form>
+
+        @if (ViewBag.OrderDetails != null)
+        {
+            <table class="table">
+                <thead>
+                    <tr>
+                        <th>Barcode</th>
+                        <th>Product Name</th>
+                        <th>Quantity</th>
+                        <th>Unit Price</th>
+                    </tr>
+                </thead>
+                <tbody id="orderDetailsBody">
+                    @foreach (var order in ViewBag.OrderDetails)
+                    {
+                        <tr>
+                            <td>@(order.Products?.Barcode ?? "N/A")</td>
+                            <td>@(order.Products?.ProductName ?? "N/A")</td>
+                            <td>@order.Quantity</td>
+                            <td>@order.UnitPrice.ToString("N0", System.Globalization.CultureInfo.GetCultureInfo("vi-VN")) VND</td>
+                        </tr>
+                    }
+                </tbody>
+                <tfoot>
+                    <tr>
+                        <td colspan="3"></td>
+                        <td>Total Amount:</td>
+                        <td id="totalAmount">0 VND</td>
+                    </tr>
+                </tfoot>
+            </table>
+
+            <script>
+                document.addEventListener("DOMContentLoaded", function () {
+                    var rows = document.querySelectorAll("#orderDetailsBody tr");
+                    var totalAmount = 0;
+
+                    rows.forEach(function (row) {
+                        var unitPrice = parseFloat(row.cells[3].textContent.replace(" VND", "").replace(/\./g, "").replace(",", "."));
+                        totalAmount += unitPrice;
+                    });
+
+                    var totalAmountCell = document.getElementById("totalAmount");
+                    totalAmountCell.textContent = formatCurrency(totalAmount);
+
+                    function formatCurrency(amount) {
+                        var formattedAmount = amount.toLocaleString("vi-VN", { style: 'currency', currency: 'VND' });
+                        return formattedAmount.replace(/\.00$/, '');
+                    }
+                });
+            </script>
+        }
+        else
+        {
+            <p>No order details available.</p>
+        }
+
+    </div>
+    <!-- Phần bên phải - Customer Details và Orders -->
+    <div style="width: 30%;">
+    <form id="customerForm" method="post" asp-controller="Orders" asp-action="Index">
+        <input type="text" id="phoneInput" placeholder="Phone Number" name="Phone" />
+        <button type="submit">Find Customer</button>
+        <span class="text-danger">@Html.ValidationMessage("Phone")</span>
+    </form>
+
+    @if (ViewBag.CustomerNotFound != null && (bool)ViewBag.CustomerNotFound)
+    {
+        <form id="newCustomerForm" method="post" asp-controller="Orders" asp-action="Create">
+                <input type="text" id="newPhoneInput" placeholder="Phone Number" name="Phone" value="@ViewBag.Phone" />
+            <input type="text" id="newAddressInput" placeholder="Address" name="Address" />
+            <input type="text" id="newNameInput" placeholder="Full Name" name="Name" />
+            <button type="submit" onclick="saveNewCustomer()">Save Customer</button>
+        </form>
+    }
+    else if (ViewBag.Customer != null)
+    {
+        <div class="customer-info">
+            <div class="row">
+                <div class="col">
+                    <h3>Customer Information</h3>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col">
+                    <p>Phone: <span id="customerPhone">@ViewBag.Customer.Phone</span></p>
+                    <p>Name: <span id="customerName">@ViewBag.Customer.Name</span></p>
+                    <p>Address: <span id="customerAddress">@ViewBag.Customer.Address</span></p>
+                </div>
+            </div>
+        </div>
+
+        <table class="table">
+            <thead>
+                <tr>
+                    <th>Customer</th>
+                    <th>Saler</th>
+                    <th>Quantity</th>
+                    <th>Unit Price</th>
+                    <th>OrderDate</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var order in ViewBag.Orders)
+                {
+                    <tr>
+                        <td>@order.Customer.Name</td>
+                        <td>@order.AccountId</td>
+                        <td>@order.Quantity</td>
+                        <td>@order.UnitPrice</td>
+                        <td>@order.OrderDate</td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    }
+        </div>
+
+    </div>

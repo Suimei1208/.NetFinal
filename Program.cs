@@ -38,6 +38,7 @@ namespace NetTechnology_Final
                 var storageUri = new StorageUri(storageAccountUri);
                 return new CloudBlobClient(storageAccountUri, storageCredentials);
             });
+            builder.Services.AddSession();
             builder.Services.AddScoped<IBlobService, BlobService>();
             builder.Services.AddRecaptcha(builder.Configuration.GetSection("Recaptcha"));
             builder.Services.AddTransient<TokenService>();
@@ -63,7 +64,7 @@ namespace NetTechnology_Final
             app.UseStaticFiles();
 
             app.UseRouting();
-
+            app.UseSession();
             app.UseAuthorization();
 
             app.MapControllerRoute(
