@@ -22,9 +22,9 @@ a {
     transition: .5s;
 }
 
-    a:hover {
-        color: #fc3565;
-    }
+a:hover {
+    color: #fc3565;
+}
 
 h1 {
     color: #fc3565;
@@ -53,29 +53,29 @@ h2 {
 .pulled {
 }
 
-    .pulled ul li {
-        list-style: none;
-        margin-right: 2rem;
-        font-size: 1.8rem;
-    }
+.pulled ul li {
+    list-style: none;
+    margin-right: 2rem;
+    font-size: 1.8rem;
+}
 
-    .pulled h1 {
-        color: white;
-        font-size: 3rem;
-    }
+.pulled h1 {
+    color: white;
+    font-size: 3rem;
+}
 
-    .pulled ul li span {
-        font-size: 1.2rem;
-    }
+.pulled ul li span {
+    font-size: 1.2rem;
+}
 
 .footer {
     padding-top: 5rem;
 }
 
-    .footer p {
-        color: white;
-        font-size: 1.2rem;
-    }
+.footer p {
+    color: white;
+    font-size: 1.2rem;
+}
 
 .visit {
     color: white;
@@ -99,35 +99,21 @@ span.new {
 
 
 
-
-/* Mobile first queries */
-
-
-/* Larger than mobile */
-
 @media (min-width: 400px) {
 }
 
-
-/* Larger than phablet */
 
 @media (min-width: 550px) {
 }
 
 
-/* Larger than tablet */
-
 @media (min-width: 750px) {
 }
 
 
-/* Larger than desktop */
-
 @media (min-width: 1000px) {
 }
 
-
-/* Larger than Desktop HD */
 
 @media (min-width: 1200px) {
     h1 {

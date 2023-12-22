@@ -1,0 +1,85 @@
+﻿.form-group label {
+    color: #bbbbc4;
+}
+
+.form-control {
+    background-color: #32333a;
+    border: none;
+    color: #fff;
+}
+
+.form-control:focus {
+    background-color: #282931;
+    color: #fc3565;
+}
+
+.btn-primary {
+    background-color: #fc3565;
+    border-color: #fc3565;
+}
+
+.btn-primary:hover {
+    background-color: #bbbbc4;
+    border-color: #bbbbc4;
+}
+
+dt {
+    color: #bbbbc4;
+}
+
+dd {
+    color: #fff;
+    margin-bottom: 1rem;
+}
+
+hr {
+    border-color: #555560;
+}
+
+.btn-secondary {
+    background-color: #32333a;
+    border-color: #32333a;
+    color: white;
+}
+
+.btn-secondary:hover {
+    background-color: #282931;
+    border-color: #282931;
+}
+
+.img-thumbnail {
+    max-width: 100%;
+    height: auto;
+    margin-bottom: 1rem;
+}
+
+.action-links {
+    margin-top: 2rem;
+}
+
+.table {
+    color: #bbbbc4;
+    background-color: #282931;
+}
+
+.table th {
+    background-color: #32333a;
+    color: #fff;
+}
+
+.table td {
+    color: #fff;
+}
+
+.table a {
+    color: white;
+    background-color: #fc3565;
+    padding: .2rem .6rem;
+    border-radius: .25rem;
+    margin-right: .5rem;
+    text-decoration: none;
+}
+
+.table a:hover {
+    background-color: #bbbbc4;
+}
