@@ -1,13 +1,16 @@
 ﻿@model dynamic
 
-<div style="display: flex; justify-content: space-between;">
+<link rel="stylesheet" href="~/css/generalize.css" asp-append-version="true" />
+<link rel="stylesheet" href="~/css/background.css" asp-append-version="true" />
+
+<div class="page-container">
 
     <!-- Phần bên trái - Product List -->
-    <div style="width: 30%;">
+    <div class="left-section custom-container">
         @if (ViewBag.Products != null)
         {
-            <table class="table">
-                <thead>
+            <table class="table  table-responsive">
+                <thead class="thead-dark">
                     <tr>
                         <th>Name Product</th>
                         <th>Price</th>
@@ -17,22 +20,22 @@
                 <tbody>
                     @foreach (var order in ViewBag.Products)
                     {
-                        <form id="orderForm" method="post" asp-controller="Orders" asp-action="addDetail">
-                            <tr>
-                                <input type="hidden" name="ProductName" value="@order.ProductName" />
-                                <input type="hidden" name="RetailPrice" value="@order.RetailPrice" />
-                                <td>@order.ProductName</td>
-                                <td>@order.RetailPrice.ToString("N0", System.Globalization.CultureInfo.GetCultureInfo("vi-VN")) VND</td>
-                                <td>
-                                    <div class="quantity-controls">
-                                        <button class="quantity-control-btn" data-action="decrease" type="button">-</button>
-                                        <input type="number" class="quantity-input" value="1" min="1" name="Quantities" />
-                                        <button class="quantity-control-btn" data-action="increase" type="button">+</button>
-                                        <button class="quantity-control-btn" data-action="add" type="submit">Add</button>
+                        <tr>
+                            <td>@order.ProductName</td>
+                            <td>@order.RetailPrice.ToString("N0", System.Globalization.CultureInfo.GetCultureInfo("vi-VN")) VND</td>
+                            <td>
+                                <form id="orderForm" method="post" asp-controller="Orders" asp-action="addDetail">
+                                    <div class="quantity-controls d-flex justify-content-center">
+                                        <input type="hidden" name="ProductName" value="@order.ProductName" />
+                                        <input type="hidden" name="RetailPrice" value="@order.RetailPrice" />
+                                        <input type="number" class="quantity-input form-control" value="1" min="1" name="Quantities" />
+                                        <button class="quantity-control-btn btn btn-outline-secondary" data-action="decrease" type="button">-</button>
+                                        <button class="quantity-control-btn btn btn-outline-secondary" data-action="increase" type="button">+</button>
+                                        <button class="quantity-control-btn btn btn-success" data-action="add" type="submit">Add</button>
                                     </div>
-                                </td>
-                            </tr>
-                        </form>
+                                </form>
+                            </td>
+                        </tr>
                     }
                 </tbody>
             </table>
@@ -67,22 +70,23 @@
     </div>
 
     <!-- Phần giữa - Barcode Input và Product Listing -->
-    <div style="width: 30%;">
+    <div class="middle-section custom-container">
         <form method="post" asp-controller="Orders" asp-action="FindProducts">
             <input type="text" placeholder="Barcode" name="Barcode" />
-            <button type="submit">Find Products</button>
+            <button class="btn btn-primary" type="submit">Find Products</button>
             <span class="text-danger">@Html.ValidationMessage("Barcode")</span>
         </form>
 
         @if (ViewBag.OrderDetails != null)
         {
-            <table class="table">
-                <thead>
+            <table class="table table-responsive">
+                <thead class="thead-light">
                     <tr>
                         <th>Barcode</th>
                         <th>Product Name</th>
                         <th>Quantity</th>
                         <th>Unit Price</th>
+                        <th></th>
                     </tr>
                 </thead>
                 <tbody id="orderDetailsBody">
@@ -96,14 +100,11 @@
                         </tr>
                     }
                 </tbody>
-                <tfoot>
-                    <tr>
-                        <td colspan="3"></td>
-                        <td>Total Amount:</td>
-                        <td id="totalAmount">0 VND</td>
-                    </tr>
-                </tfoot>
             </table>
+            <div style="float: right;">
+                <div>Total Amount:  <strong id="totalAmount">0 VND</strong></div>
+            </div>
+                
 
             <script>
                 document.addEventListener("DOMContentLoaded", function () {
@@ -132,20 +133,20 @@
 
     </div>
     <!-- Phần bên phải - Customer Details và Orders -->
-    <div style="width: 30%;">
+    <div class="right-section custom-container">
     <form id="customerForm" method="post" asp-controller="Orders" asp-action="Index">
         <input type="text" id="phoneInput" placeholder="Phone Number" name="Phone" />
-        <button type="submit">Find Customer</button>
+            <button class="btn btn-primary" type="submit">Find Customer</button>
         <span class="text-danger">@Html.ValidationMessage("Phone")</span>
     </form>
 
     @if (ViewBag.CustomerNotFound != null && (bool)ViewBag.CustomerNotFound)
     {
         <form id="newCustomerForm" method="post" asp-controller="Orders" asp-action="Create">
-                <input type="text" id="newPhoneInput" placeholder="Phone Number" name="Phone" value="@ViewBag.Phone" />
+            <input type="text" id="newPhoneInput" placeholder="Phone Number" name="Phone" value="@ViewBag.Phone" />
             <input type="text" id="newAddressInput" placeholder="Address" name="Address" />
             <input type="text" id="newNameInput" placeholder="Full Name" name="Name" />
-            <button type="submit" onclick="saveNewCustomer()">Save Customer</button>
+            <button class="btn btn-primary" type="submit" onclick="saveNewCustomer()">Save Customer</button>
         </form>
     }
     else if (ViewBag.Customer != null)
@@ -165,8 +166,8 @@
             </div>
         </div>
 
-        <table class="table">
-            <thead>
+            <table class="table table-responsive">
+            <thead class="thead-light">
                 <tr>
                     <th>Customer</th>
                     <th>Saler</th>

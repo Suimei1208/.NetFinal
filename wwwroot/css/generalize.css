@@ -1,16 +1,42 @@
-﻿.form-group label {
+﻿.custom-container {
+    margin-top: 20px;
+    margin-bottom: 10px;
+    padding: 15px;
+    border: 1px solid #bbbbc4;
+    border-radius: 5px;
+    background: #32333a;
+}
+
+.page-container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    width: 100%;
+}
+
+.form-group label {
     color: #bbbbc4;
 }
 
 .form-control {
-    background-color: #32333a;
-    border: none;
+    background-color: #2a2a2e;
+    border: #282931;
     color: #fff;
 }
 
 .form-control:focus {
     background-color: #282931;
     color: #fc3565;
+}
+
+.form-control:read-only {
+    background-color: #2a2a2e;
+    color:#808080;
+}
+
+.btn {
+    margin-top: 10px;
+    margin-bottom: 10px;
 }
 
 .btn-primary {
@@ -63,7 +89,7 @@ hr {
 }
 
 .table th {
-    background-color: #32333a;
+    background-color: #282931;
     color: #fff;
 }
 
@@ -73,7 +99,7 @@ hr {
 
 .table a {
     color: white;
-    background-color: #fc3565;
+    background-color: #282931;
     padding: .2rem .6rem;
     border-radius: .25rem;
     margin-right: .5rem;
@@ -81,5 +107,38 @@ hr {
 }
 
 .table a:hover {
-    background-color: #bbbbc4;
+    background-color: #32333a;
 }
+
+
+.table-bordered {
+    border: 1px solid #dee2e6;
+}
+
+.thead-light th {
+    color: white;
+    background-color: #282931;
+    border-color: #dee2e6;
+}
+
+.left-section, .middle-section, .right-section {
+    width: 100%;
+    padding: 15px;
+}
+
+.quantity-controls {
+    display: flex;
+    align-items: center;
+}
+
+.quantity-control-btn {
+    margin: 0 5px;
+}
+
+.customer-info {
+    margin-top: 15px;
+}
+
+    .customer-info h3 {
+        margin-bottom: 10px;
+    }

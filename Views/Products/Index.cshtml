@@ -4,64 +4,73 @@
     ViewData["Title"] = "Index";
 }
 
-<h1>Index</h1>
+<link rel="stylesheet" href="~/css/generalize.css" asp-append-version="true" />
+<link rel="stylesheet" href="~/css/background.css" asp-append-version="true" />
 
-<p>
-    <a asp-action="Create">Create New</a>
-</p>
-<table class="table">
-    <thead>
-        <tr>
-            <th>
-                @Html.DisplayNameFor(model => model.Barcode)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.ProductName)
-            </th>
-            @if (User.IsInRole("Admin"))
-            {
+<div class="custom-container">
+
+    <h1>Index</h1>
+
+    <p>
+        <a asp-action="Create">Create New</a>
+    </p>
+    <table class="table table-responsive">
+        <thead>
+            <tr>
                 <th>
-                    @Html.DisplayNameFor(model => model.ImportPrice)
+                    @Html.DisplayNameFor(model => model.Barcode)
                 </th>
-            }       
-            <th>
-                @Html.DisplayNameFor(model => model.RetailPrice)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.CreateDate)
-            </th>
-            <th></th>
-        </tr>
-    </thead>
-    <tbody>
-@foreach (var item in Model) {
-        <tr>
-            <td>
-                @Html.DisplayFor(modelItem => item.Barcode)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.ProductName)
-            </td>
+                <th>
+                    @Html.DisplayNameFor(model => model.ProductName)
+                </th>
                 @if (User.IsInRole("Admin"))
                 {
+                    <th>
+                        @Html.DisplayNameFor(model => model.ImportPrice)
+                    </th>
+                }
+                <th>
+                    @Html.DisplayNameFor(model => model.RetailPrice)
+                </th>
+                <th>
+                    @Html.DisplayNameFor(model => model.CreateDate)
+                </th>
+                <th></th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var item in Model)
+            {
+                <tr>
                     <td>
-                        @string.Format("{0:N0} VND", item.ImportPrice)
+                        @Html.DisplayFor(modelItem => item.Barcode)
                     </td>
-                }        
-            <td>
-                    @string.Format("{0:N0} VND", item.RetailPrice)
-            <td>
-                @Html.DisplayFor(modelItem => item.CreateDate)
-            </td>
-            <td>
-                    <a asp-action="Details" asp-route-id="@item.Id">Details</a>
+                    <td>
+                        @Html.DisplayFor(modelItem => item.ProductName)
+                    </td>
                     @if (User.IsInRole("Admin"))
                     {
-                        <a asp-action = "Edit" asp-route-id = "@item.Id" > Edit </a> 
-                        <a asp-action = "Delete" asp-route-id = "@item.Id" > Delete </a>
+                        <td>
+                            @string.Format("{0:N0} VND", item.ImportPrice)
+                        </td>
                     }
-                </td>
-        </tr>
-}
-    </tbody>
-</table>
+                    <td>
+                        @string.Format("{0:N0} VND", item.RetailPrice)
+                    <td>
+                            @Html.DisplayFor(modelItem => item.CreateDate)
+                    </td>
+                    <td>
+                        <a asp-action="Details" asp-route-id="@item.Id">Details</a>
+                            @if (User.IsInRole("Admin"))
+                            {
+                            <a asp-action="Edit" asp-route-id="@item.Id"> Edit </a>
+                            <a asp-action="Delete" asp-route-id="@item.Id"> Delete </a>
+                            }
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
+
+
+</div>
