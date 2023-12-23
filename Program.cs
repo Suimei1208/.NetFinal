@@ -1,3 +1,5 @@
+using DinkToPdf.Contracts;
+using DinkToPdf;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.Azure.Storage;
@@ -38,6 +40,7 @@ namespace NetTechnology_Final
                 var storageUri = new StorageUri(storageAccountUri);
                 return new CloudBlobClient(storageAccountUri, storageCredentials);
             });
+            builder.Services.AddSingleton(typeof(IConverter), new SynchronizedConverter(new PdfTools()));
             builder.Services.AddSession();
             builder.Services.AddScoped<IBlobService, BlobService>();
             builder.Services.AddRecaptcha(builder.Configuration.GetSection("Recaptcha"));

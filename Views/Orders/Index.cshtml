@@ -95,7 +95,19 @@
                         <tr>
                             <td>@(order.Products?.Barcode ?? "N/A")</td>
                             <td>@(order.Products?.ProductName ?? "N/A")</td>
+                            <td>
+                                <form method="post" asp-controller="Orders" asp-action="Minus">
+                                    <input type="hidden" name="Barcode" value="@order.Products.Barcode" />
+                                    <button type="submit">-</button>
+                                </form>
+                            </td>
                             <td>@order.Quantity</td>
+                            <td>
+                                <form method="post" asp-controller="Orders" asp-action="Plus">
+                                    <input type="hidden" name="Barcode" value="@order.Products.Barcode" />
+                                    <button type="submit">+</button>
+                                </form>
+                            </td>
                             <td>@order.UnitPrice.ToString("N0", System.Globalization.CultureInfo.GetCultureInfo("vi-VN")) VND</td>
                         </tr>
                     }
@@ -112,7 +124,7 @@
                     var totalAmount = 0;
 
                     rows.forEach(function (row) {
-                        var unitPrice = parseFloat(row.cells[3].textContent.replace(" VND", "").replace(/\./g, "").replace(",", "."));
+                        var unitPrice = parseFloat(row.cells[5].textContent.replace(" VND", "").replace(/\./g, "").replace(",", "."));
                         totalAmount += unitPrice;
                     });
 
@@ -193,3 +205,25 @@
         </div>
 
     </div>
+
+<div style="width: 100%; display: flex; justify-content: right; margin-bottom: 20px;">
+    <form method="post" asp-controller="Orders" asp-action="Buy">
+        <input type="hidden" name="TotalAmount" id="hiddenTotalAmount" value="0" />
+        <span class="text-danger">@Html.ValidationMessage("Error")</span>
+        <button type="submit">Order</button>
+    </form>
+    <button id="btnPrint">Print PDF</button>
+</div>
+
+<script>
+    document.getElementById('btnPrint').addEventListener('click', function () {
+        var pdfUrl = '/Orders/GeneratePdf';
+        var form = document.createElement('form');
+        form.setAttribute('method', 'post');
+        form.setAttribute('action', pdfUrl);
+        document.body.appendChild(form);
+        form.submit();
+        document.body.removeChild(form);
+    });
+
+</script>

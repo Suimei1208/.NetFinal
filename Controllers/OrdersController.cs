@@ -1,7 +1,12 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Drawing.Imaging;
+using System.Drawing.Printing;
 using System.Linq;
+using System.Security.Claims;
+using System.Text;
 using System.Threading.Tasks;
+using DinkToPdf;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
@@ -255,7 +260,174 @@ namespace NetTechnology_Final.Controllers
             return RedirectToAction("Index");
             //return Json(ProductName);
         }
+        public async Task<IActionResult> Buy(string TotalAmount)
+        {
+            int count = 0;
+            var customer = HttpContext.Session.Get<Customer>("_customer");
+            var orderDetails = HttpContext.Session.Get<List<OrderDetail>>("_ordersdetail");
 
+            if (orderDetails != null)
+            {
+                if (customer != null)
+                {
+                    var order = new Orders
+                    {
+                        CustomerId = customer.Id,
+                        UnitPrice = long.Parse(TotalAmount),
+                        AccountId = int.Parse(User.FindFirst(ClaimTypes.NameIdentifier)?.Value.ToString()),
+                        Quantity = 0,
+                        OrderDate = DateTime.Now
+                    };
+                    _context.Orders.Add(order);
+                    await _context.SaveChangesAsync();
+
+                    foreach (var orderDetail in orderDetails)
+                    {
+                        orderDetail.OrderId = order.Id;
+                        orderDetail.Products = null;
+                        count += orderDetail.Quantity;
+                        _context.OrderDetails.Add(orderDetail);
+                        await _context.SaveChangesAsync();
+                    }
+
+                    order.Quantity = count;
+                    await _context.SaveChangesAsync();
+
+                    HttpContext.Session.Remove("_customer");
+                    HttpContext.Session.Remove("_orders");
+                    HttpContext.Session.Remove("_ordersdetail");
+
+                    ViewBag.Products = _context.Products.ToList();
+                    return RedirectToAction("Index");
+                }
+                ModelState.AddModelError("Error", "Not found customer");
+                return RedirectToAction("Index");
+            }
+            ModelState.AddModelError("Error", "Add product into cart!!");
+            return RedirectToAction("Index");
+        }
+
+        [HttpPost]
+        public IActionResult GeneratePdf()
+        {
+            var customer = HttpContext.Session.Get<Customer>("_customer");
+            var orderDetails = HttpContext.Session.Get<List<OrderDetail>>("_ordersdetail");
+
+            var htmlContent = new StringBuilder();
+
+            htmlContent.Append("<div style='text-align: center;'>");
+            htmlContent.Append("<h2>Welcome to my website</h2>");
+            htmlContent.Append("<h1>Tan Hung Company</h1>");
+            htmlContent.Append("<h4>Nha Be district - Ho Chi Minh city</h4>");
+            htmlContent.Append("<h5>Invoice</h5>");
+            htmlContent.Append($"<p style='text-align: center;'>Name: {customer.Name}</p>");
+            htmlContent.Append($"<p style='text-align: center;'>Phone: {customer.Phone}</p>");
+            htmlContent.Append($"<p style='text-align: center;'>Address: {customer.Address}</p>");
+            htmlContent.Append($"<p style='text-align: center;'>Date: {DateTime.Now}</p>");
+
+            htmlContent.Append("<table style='width: 100%; border-collapse: collapse;'>");
+            htmlContent.Append("<tr>");
+            htmlContent.Append("<th style='border: 1px solid black;'>Product name</th>");
+            htmlContent.Append("<th style='border: 1px solid black;'>Quantity</th>");
+            htmlContent.Append("<th style='border: 1px solid black;'>Unit Price</th>");
+            htmlContent.Append("</tr>");
+
+            foreach (var orderDetail in orderDetails)
+            {
+                var product = _context.Products.FirstOrDefault(sp => sp.Id == orderDetail.ProductId);
+                htmlContent.Append("<tr>");
+                htmlContent.Append($"<td style='border: 1px solid black; text-align: center;'>{product.ProductName}</td>");
+                htmlContent.Append($"<td style='border: 1px solid black; text-align: center;'>{orderDetail.Quantity}</td>");
+                htmlContent.Append($"<td style='border: 1px solid black; text-align: center;'>{orderDetail.UnitPrice.ToString("N0", System.Globalization.CultureInfo.GetCultureInfo("vi-VN"))} VND</td>");
+                htmlContent.Append("</tr>");
+            }
+
+            htmlContent.Append("</table>");
+
+            htmlContent.Append($"<p style='text-align: right;'>Total Amount: {orderDetails.Sum(o => o.UnitPrice):N0} VND</p>");
+
+            htmlContent.Append("<h3>Thank you and visit again</h3>");
+            htmlContent.Append("</div>");
+
+            var globalSettings = new GlobalSettings
+            {
+                ColorMode = DinkToPdf.ColorMode.Color,
+                Orientation = Orientation.Portrait,
+                PaperSize = DinkToPdf.PaperKind.A4
+            };
+
+            var objectSettings = new ObjectSettings
+            {
+                PagesCount = true,
+                HtmlContent = htmlContent.ToString(),
+                WebSettings = { DefaultEncoding = "utf-8" },
+                HeaderSettings = { FontSize = 9, Right = "Page [page] of [toPage]", Line = true, Spacing = 2.812 }
+            };
+
+            var pdfDocument = new HtmlToPdfDocument
+            {
+                GlobalSettings = globalSettings,
+                Objects = { objectSettings }
+            };
+            var pdfTools = new PdfTools();
+            Console.WriteLine("ok");
+            var pdfConverter = new BasicConverter(pdfTools);
+            var pdfBytes = pdfConverter.Convert(pdfDocument);
+            Response.Headers.Add("Content-Disposition", "attachment; filename=invoice.pdf");
+
+            return File(pdfBytes, "application/pdf");
+        }
+
+        [HttpPost]
+        public IActionResult Plus(string Barcode)
+        {
+            _ordersdetail = HttpContext.Session.Get<List<OrderDetail>>("_ordersdetail");
+            var product = _context.Products.FirstOrDefault(pr => pr.Barcode == Barcode);
+            var existingOrderDetail = _ordersdetail.FirstOrDefault(od => od.ProductId == product.Id);
+            if (existingOrderDetail != null)
+            {
+                // Nếu sản phẩm đã có trong danh sách
+                existingOrderDetail.Quantity++;
+                existingOrderDetail.UnitPrice = existingOrderDetail.UnitPrice + product.RetailPrice;
+            }
+
+            HttpContext.Session.Set("_ordersdetail", _ordersdetail);
+            ViewBag.OrderDetails = _ordersdetail;
+
+            var custclone = HttpContext.Session.Get<Customer>("_customer");
+            ViewBag.Customer = custclone;
+
+            _orders = HttpContext.Session.Get<List<Orders>>("_orders");
+            ViewBag.Orders = _orders;
+
+            ViewBag.Products = _context.Products.ToList();
+            return View("Index");
+        }
+        [HttpPost]
+        public IActionResult Minus(string Barcode)
+        {
+            _ordersdetail = HttpContext.Session.Get<List<OrderDetail>>("_ordersdetail");
+            var product = _context.Products.FirstOrDefault(pr => pr.Barcode == Barcode);
+            var existingOrderDetail = _ordersdetail.FirstOrDefault(od => od.ProductId == product.Id);
+            if (existingOrderDetail != null)
+            {
+                // Nếu sản phẩm đã có trong danh sách
+                existingOrderDetail.Quantity--;
+                existingOrderDetail.UnitPrice = existingOrderDetail.UnitPrice - product.RetailPrice;
+            }
+
+            HttpContext.Session.Set("_ordersdetail", _ordersdetail);
+            ViewBag.OrderDetails = _ordersdetail;
+
+            var custclone = HttpContext.Session.Get<Customer>("_customer");
+            ViewBag.Customer = custclone;
+
+            _orders = HttpContext.Session.Get<List<Orders>>("_orders");
+            ViewBag.Orders = _orders;
+
+            ViewBag.Products = _context.Products.ToList();
+            return View("Index");
+        }
 
     }
     public static class SessionExtensions
