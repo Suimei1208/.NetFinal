@@ -108,8 +108,8 @@ namespace NetTechnology_Final.Migrations
                     b.Property<int>("Quantity")
                         .HasColumnType("int");
 
-                    b.Property<decimal>("UnitPrice")
-                        .HasColumnType("decimal(18,2)");
+                    b.Property<long>("UnitPrice")
+                        .HasColumnType("bigint");
 
                     b.HasKey("Id");
 
@@ -177,6 +177,9 @@ namespace NetTechnology_Final.Migrations
                     b.Property<string>("ProductName")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
+
+                    b.Property<int>("Quantity")
+                        .HasColumnType("int");
 
                     b.Property<long>("RetailPrice")
                         .HasColumnType("bigint");

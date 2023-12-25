@@ -35,6 +35,9 @@
                 <th>
                     @Html.DisplayNameFor(model => model.CreateDate)
                 </th>
+                <th>
+                    @Html.DisplayNameFor(model => model.Quantity)
+                </th>
                 <th></th>
             </tr>
         </thead>
@@ -60,6 +63,9 @@
                             @Html.DisplayFor(modelItem => item.CreateDate)
                     </td>
                     <td>
+                            @Html.DisplayFor(modelItem => item.Quantity)
+                    </td>
+                    <td>
                         <a asp-action="Details" asp-route-id="@item.Id">Details</a>
                             @if (User.IsInRole("Admin"))
                             {
@@ -67,6 +73,7 @@
                             <a asp-action="Delete" asp-route-id="@item.Id"> Delete </a>
                             }
                     </td>
+
                 </tr>
             }
         </tbody>

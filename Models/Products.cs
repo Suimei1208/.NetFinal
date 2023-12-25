@@ -20,5 +20,7 @@ namespace NetTechnology_Final.Models
         public long RetailPrice { get; set; }
         [Required]
         public DateTime CreateDate { get; set; }
+        [Required]
+        public int Quantity { get; set; }
     }
 }

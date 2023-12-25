@@ -15,6 +15,7 @@
                         <th>Name Product</th>
                         <th>Price</th>
                         <th>Quantity</th>
+                        <th>Quantity in stock</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -35,6 +36,7 @@
                                     </div>
                                 </form>
                             </td>
+                            <td>@order.Quantity</td>
                         </tr>
                     }
                 </tbody>
@@ -116,7 +118,7 @@
             <div style="float: right;">
                 <div>Total Amount:  <strong id="totalAmount">0 VND</strong></div>
             </div>
-                
+
 
             <script>
                 document.addEventListener("DOMContentLoaded", function () {
@@ -131,12 +133,17 @@
                     var totalAmountCell = document.getElementById("totalAmount");
                     totalAmountCell.textContent = formatCurrency(totalAmount);
 
+                    // Update the hidden input for TotalAmount
+                    var hiddenTotalAmountInput = document.getElementById("hiddenTotalAmount");
+                    hiddenTotalAmountInput.value = totalAmount;
+
                     function formatCurrency(amount) {
                         var formattedAmount = amount.toLocaleString("vi-VN", { style: 'currency', currency: 'VND' });
                         return formattedAmount.replace(/\.00$/, '');
                     }
                 });
             </script>
+
         }
         else
         {

@@ -96,7 +96,7 @@ namespace NetTechnology_Final.Models
         [HttpPost]
         [ValidateAntiForgeryToken]
         [Authorize(Roles = "Admin")]
-        public async Task<IActionResult> Edit(int id, [Bind("Id,Barcode,ProductName,ProductDescription,ImportPrice,RetailPrice,CreateDate")] Products products)
+        public async Task<IActionResult> Edit(int id, [Bind("Id,Barcode,ProductName,ProductDescription,ImportPrice,RetailPrice,CreateDate,Quantity")] Products products)
         {
             if (id != products.Id)
             {

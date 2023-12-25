@@ -94,18 +94,6 @@ namespace NetTechnology_Final.Controllers
                 var custclone = _context.Customers.FirstOrDefault(e => e.Phone == customer.Phone);
                 var _orders = _context.Orders.Where(e => e.CustomerId == custclone.Id).ToList();
 
-                // Tạo một danh sách chứa cả thông tin Order và Account tương ứng
-                /* var ordersWithAccount = orders.Select(order =>
-                 {
-                     var account = _context.Accounts.FirstOrDefault(account => account.Id == order.AccountId);
-                     return new
-                     {
-                         Order = order,
-                         Account = account
-                     };
-                 }).ToList();*/
-                /*var salerNames =
-       _context.Accounts.FirstOrDefault(account => account.Id == 1);*/
                 HttpContext.Session.Set("_orders", _orders);
                 HttpContext.Session.Set("_customer", custclone);
                 ViewBag.Customer = custclone;
@@ -263,48 +251,56 @@ namespace NetTechnology_Final.Controllers
         public async Task<IActionResult> Buy(string TotalAmount)
         {
             int count = 0;
-            var customer = HttpContext.Session.Get<Customer>("_customer");
-            var orderDetails = HttpContext.Session.Get<List<OrderDetail>>("_ordersdetail");
+             var customer = HttpContext.Session.Get<Customer>("_customer");
+             var orderDetails = HttpContext.Session.Get<List<OrderDetail>>("_ordersdetail");
+            
+             if (orderDetails != null)
+             {
+                 if (customer != null)
+                 {
+                     var order = new Orders
+                     {
+                         CustomerId = customer.Id,
+                         UnitPrice = long.Parse(TotalAmount),
+                         AccountId = int.Parse(User.FindFirst(ClaimTypes.NameIdentifier)?.Value.ToString()),
+                         Quantity = 0,
+                         OrderDate = DateTime.Now
+                     };
+                     _context.Orders.Add(order);
+                     await _context.SaveChangesAsync();
 
-            if (orderDetails != null)
-            {
-                if (customer != null)
-                {
-                    var order = new Orders
-                    {
-                        CustomerId = customer.Id,
-                        UnitPrice = long.Parse(TotalAmount),
-                        AccountId = int.Parse(User.FindFirst(ClaimTypes.NameIdentifier)?.Value.ToString()),
-                        Quantity = 0,
-                        OrderDate = DateTime.Now
-                    };
-                    _context.Orders.Add(order);
-                    await _context.SaveChangesAsync();
+                     foreach (var orderDetail in orderDetails)
+                     {
+                        var quantity = _context.Products.FirstOrDefault(p => p.Id == orderDetail.ProductId);
+                        quantity.Quantity -= orderDetail.Quantity;
 
-                    foreach (var orderDetail in orderDetails)
-                    {
-                        orderDetail.OrderId = order.Id;
-                        orderDetail.Products = null;
-                        count += orderDetail.Quantity;
-                        _context.OrderDetails.Add(orderDetail);
-                        await _context.SaveChangesAsync();
-                    }
+                         orderDetail.OrderId = order.Id;
+                         orderDetail.Products = null;
+                         count += orderDetail.Quantity;
+                         _context.OrderDetails.Add(orderDetail);
+                         await _context.SaveChangesAsync();
 
-                    order.Quantity = count;
-                    await _context.SaveChangesAsync();
 
-                    HttpContext.Session.Remove("_customer");
-                    HttpContext.Session.Remove("_orders");
-                    HttpContext.Session.Remove("_ordersdetail");
+                     }
 
-                    ViewBag.Products = _context.Products.ToList();
-                    return RedirectToAction("Index");
-                }
-                ModelState.AddModelError("Error", "Not found customer");
-                return RedirectToAction("Index");
-            }
-            ModelState.AddModelError("Error", "Add product into cart!!");
-            return RedirectToAction("Index");
+                     order.Quantity = count;
+                     await _context.SaveChangesAsync();
+
+
+                     HttpContext.Session.Remove("_customer");
+                     HttpContext.Session.Remove("_orders");
+                     HttpContext.Session.Remove("_ordersdetail");
+
+                     ViewBag.Products = _context.Products.ToList();
+                     return RedirectToAction("Index");
+                 }
+                 ModelState.AddModelError("Error", "Not found customer");
+                 return RedirectToAction("Index");
+             }
+
+             ModelState.AddModelError("Error", "Add product into cart!!");
+             return RedirectToAction("Index");
+           // return Json(count.ToString());
         }
 
         [HttpPost]
