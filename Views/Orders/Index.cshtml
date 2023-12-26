@@ -204,6 +204,7 @@
                         <td>@order.Quantity</td>
                         <td>@order.UnitPrice</td>
                         <td>@order.OrderDate</td>
+                         <td> <a asp-action="Index" asp-route-id="@order.AccountId">Details</a></td>
                     </tr>
                 }
             </tbody>
@@ -225,12 +226,27 @@
 <script>
     document.getElementById('btnPrint').addEventListener('click', function () {
         var pdfUrl = '/Orders/GeneratePdf';
+
+        // Tạo form
         var form = document.createElement('form');
         form.setAttribute('method', 'post');
         form.setAttribute('action', pdfUrl);
+
+        // Thêm input để đánh dấu việc xóa session
+        var deleteSessionInput = document.createElement('input');
+        deleteSessionInput.setAttribute('type', 'hidden');
+        deleteSessionInput.setAttribute('name', 'deleteSession');
+        deleteSessionInput.setAttribute('value', 'true');
+
+        // Thêm các input và sau đó submit form
+        form.appendChild(deleteSessionInput);
         document.body.appendChild(form);
         form.submit();
         document.body.removeChild(form);
-    });
 
+        // Sau khi submit form và trang đã bắt đầu tải file, reload trang sau 1 giây (có thể cần điều chỉnh thời gian phù hợp)
+        setTimeout(function () {
+            location.reload(true);
+        }, 1000);
+    });
 </script>
