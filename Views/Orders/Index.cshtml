@@ -30,9 +30,18 @@
                                         <input type="hidden" name="ProductName" value="@order.ProductName" />
                                         <input type="hidden" name="RetailPrice" value="@order.RetailPrice" />
                                         <input type="number" class="quantity-input form-control" value="1" min="1" name="Quantities" />
-                                        <button class="quantity-control-btn btn btn-outline-secondary" data-action="decrease" type="button">-</button>
-                                        <button class="quantity-control-btn btn btn-outline-secondary" data-action="increase" type="button">+</button>
-                                        <button class="quantity-control-btn btn btn-success" data-action="add" type="submit">Add</button>
+                                        @if (order.Quantity == 0)
+                                        {
+                                            <button disabled class="quantity-control-btn btn btn-outline-secondary" data-action="decrease" type="button">-</button>
+                                            <button disabled class="quantity-control-btn btn btn-outline-secondary" data-action="increase" type="button">+</button>
+                                            <button disabled class="quantity-control-btn btn btn-success" data-action="add" type="submit">Add</button>
+                                        }
+                                        else
+                                        {
+                                            <button class="quantity-control-btn btn btn-outline-secondary" data-action="decrease" type="button">-</button>
+                                            <button class="quantity-control-btn btn btn-outline-secondary" data-action="increase" type="button">+</button>
+                                            <button class="quantity-control-btn btn btn-success" data-action="add" type="submit">Add</button>
+                                        }
                                     </div>
                                 </form>
                             </td>
@@ -44,27 +53,42 @@
             }
             <script>
                 document.addEventListener("DOMContentLoaded", function () {
-                    var quantityControls = document.querySelectorAll('.quantity-controls');
-                    var hiddenQuantitiesInput = document.getElementById('hiddenQuantities');
+                    var rows = document.querySelectorAll('.left-section .table tbody tr');
 
-                    quantityControls.forEach(function (controls, index) {
-                        var input = controls.querySelector('.quantity-input');
-                        var decreaseBtn = controls.querySelector('[data-action="decrease"]');
-                        var increaseBtn = controls.querySelector('[data-action="increase"]');
+                    rows.forEach(function (row) {
+                        var stockQuantity = parseInt(row.querySelector('td:last-child').textContent.trim());
+                        var quantityInput = row.querySelector('.quantity-input');
+                        var decreaseBtn = row.querySelector('[data-action="decrease"]');
+                        var increaseBtn = row.querySelector('[data-action="increase"]');
+
+                        function updateQuantityControls() {
+                            var currentQuantity = parseInt(quantityInput.value, 10);
+
+                            decreaseBtn.disabled = currentQuantity <= 1;
+                            increaseBtn.disabled = currentQuantity >= stockQuantity;
+
+                            if (currentQuantity > stockQuantity) {
+                                quantityInput.value = stockQuantity;
+                            }
+                        }
 
                         decreaseBtn.addEventListener('click', function () {
-                            var currentValue = parseInt(input.value, 10);
-                            if (currentValue > 1) {
-                                input.value = currentValue - 1;
-                                hiddenQuantitiesInput.value = input.value; 
+                            if (quantityInput.value > 1) {
+                                quantityInput.value--;
+                                updateQuantityControls();
                             }
                         });
 
                         increaseBtn.addEventListener('click', function () {
-                            var currentValue = parseInt(input.value, 10);
-                            input.value = currentValue + 1;
-                            hiddenQuantitiesInput.value = input.value; 
+                            if (quantityInput.value < stockQuantity) {
+                                quantityInput.value++;
+                                updateQuantityControls();
+                            }
                         });
+
+                        quantityInput.addEventListener('change', updateQuantityControls);
+
+                        updateQuantityControls();
                     });
                 });
             </script>
@@ -100,14 +124,14 @@
                             <td>
                                 <form method="post" asp-controller="Orders" asp-action="Minus">
                                     <input type="hidden" name="Barcode" value="@order.Products.Barcode" />
-                                    <button type="submit">-</button>
+                                    <button type="submit" class="quantity-control-btn btn btn-outline-secondary">-</button>
                                 </form>
                             </td>
                             <td>@order.Quantity</td>
                             <td>
                                 <form method="post" asp-controller="Orders" asp-action="Plus">
                                     <input type="hidden" name="Barcode" value="@order.Products.Barcode" />
-                                    <button type="submit">+</button>
+                                    <button type="submit" class="quantity-control-btn btn btn-outline-secondary">+</button>
                                 </form>
                             </td>
                             <td>@order.UnitPrice.ToString("N0", System.Globalization.CultureInfo.GetCultureInfo("vi-VN")) VND</td>
@@ -193,6 +217,7 @@
                     <th>Quantity</th>
                     <th>Unit Price</th>
                     <th>OrderDate</th>
+                    <th></th>
                 </tr>
             </thead>
             <tbody>
@@ -204,24 +229,64 @@
                         <td>@order.Quantity</td>
                         <td>@order.UnitPrice</td>
                         <td>@order.OrderDate</td>
-                         <td> <a asp-action="Index" asp-route-id="@order.AccountId">Details</a></td>
+                        <td> <button class="btn btn-danger" data-toggle="modal" data-target="#orderDetailsModal">Details</button></td>
                     </tr>
-                }
+                    } <!--<td> <a asp-action="Index" asp-route-id="order.Id" data-toggle="modal" data-target="#orderDetailsModal">Details</a></td>-->
             </tbody>
         </table>
     }
-        </div>
-
     </div>
+</div>
 
 <div style="width: 100%; display: flex; justify-content: right; margin-bottom: 20px;">
     <form method="post" asp-controller="Orders" asp-action="Buy">
         <input type="hidden" name="TotalAmount" id="hiddenTotalAmount" value="0" />
         <span class="text-danger">@Html.ValidationMessage("Error")</span>
-        <button type="submit">Order</button>
+        <button type="submit" class="btn btn-primary m-1" >Order</button>
     </form>
-    <button id="btnPrint">Print PDF</button>
+    <button id="btnPrint" class="btn btn-warning m-1">Print PDF</button>
 </div>
+
+<!--Modals-->
+<!-- Order Details Modal -->
+<div class="modal fade" id="orderDetailsModal" tabindex="-1" role="dialog" aria-labelledby="orderDetailsModalLabel" aria-hidden="true">
+  <div class="modal-dialog modal-lg modal-dialog-centered" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="orderDetailsModalLabel">Order Details</h5>
+        <button type="button" class="close btn btn-dark" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body">
+        <div class="table-responsive">
+          <table class="table">
+            <thead>
+              <tr>
+                <th>Order ID</th>
+                <th>Product Name</th>
+                <th>Quantity</th>
+                <th>Unit Price</th>
+              </tr>
+            </thead>
+            <tbody>
+              <!-- detail se hien o day -->
+            </tbody>
+          </table>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-danger" data-dismiss="modal">Close</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+
+
+
+
+
 
 <script>
     document.getElementById('btnPrint').addEventListener('click', function () {
@@ -250,3 +315,7 @@
         }, 1000);
     });
 </script>
+
+<script src="https://code.jquery.com/jquery-3.3.1.slim.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.7/umd/popper.min.js"></script>
+<script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js"></script>

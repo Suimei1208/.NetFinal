@@ -14,6 +14,11 @@
     width: 100%;
 }
 
+#orderDetailsModal .modal-content {
+    background-color: #282931;
+    color: #bbbbc4;
+}
+
 .form-group label {
     color: #bbbbc4;
 }
