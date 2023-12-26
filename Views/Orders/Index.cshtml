@@ -91,6 +91,12 @@
                         updateQuantityControls();
                     });
                 });
+
+            function closeModal(modalId) {
+                $(modalId).modal('hide');
+                $(modalId).on('hidden.bs.modal');
+                window.location.reload();
+            }
             </script>
         
     </div>
@@ -262,7 +268,7 @@
     <div class="modal-content">
       <div class="modal-header">
         <h5 class="modal-title" id="orderDetailsModalLabel">Order Details</h5>
-        <button type="button" class="close btn btn-dark" data-dismiss="modal" aria-label="Close">
+                <button type="button" class="close btn btn-dark" data-dismiss="modal" aria-label="Close" onclick="closeModal('#orderDetailsModal')">
           <span aria-hidden="true">&times;</span>
         </button>
       </div>
@@ -279,7 +285,7 @@
         </div>
       </div>
       <div class="modal-footer">
-        <button type="button" class="btn btn-danger" data-dismiss="modal">Close</button>
+                <button type="button" class="btn btn-danger" data-dismiss="modal" onclick="closeModal('#orderDetailsModal')">Close</button>
       </div>
     </div>
   </div>
