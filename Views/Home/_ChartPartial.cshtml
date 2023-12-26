@@ -1,0 +1,49 @@
+﻿<!-- _ChartPartial.cshtml -->
+
+
+<canvas id="myChart" width="400" height="200"></canvas>
+
+@section scripts {
+    <script>
+        var ctx = document.getElementById('myChart').getContext('2d');
+
+        // Convert dates to strings using a separate function
+        function dateToString(d) {
+            return new Date(d.Date).toLocaleDateString('en-US', { year: 'numeric', month: '2-digit', day: '2-digit' });
+        }
+
+        var data = @Html.Raw(Json.Serialize(Model));
+
+        var labels = data.map(function (d) { return dateToString(d); });
+        var totalQuantity = data.map(function (d) { return d.TotalQuantity; });
+        var totalAmount = data.map(function (d) { return d.TotalAmount; });
+        var totalProducts = data.map(function (d) { return d.TotalProducts; });
+
+        var chart = new Chart(ctx, {
+            type: 'line',
+            data: {
+                labels: labels,
+                datasets: [
+                    {
+                        label: 'Total Quantity',
+                        borderColor: 'rgba(75, 192, 192, 1)',
+                        data: totalQuantity,
+                        fill: false,
+                    },
+                    {
+                        label: 'Total Amount',
+                        borderColor: 'rgba(255, 99, 132, 1)',
+                        data: totalAmount,
+                        fill: false,
+                    },
+                    {
+                        label: 'Total Products',
+                        borderColor: 'rgba(54, 162, 235, 1)',
+                        data: totalProducts,
+                        fill: false,
+                    },
+                ],
+            },
+        });
+    </script>
+}
