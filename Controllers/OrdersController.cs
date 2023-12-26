@@ -119,6 +119,7 @@ namespace NetTechnology_Final.Controllers
                     _ordersdetail = HttpContext.Session.Get<List<OrderDetail>>("_ordersdetail");
                     ViewBag.OrderDetails = _ordersdetail;
                 }
+                ViewBag.Products = _context.Products.ToList();
                 return View();
             }
         }
@@ -426,6 +427,29 @@ namespace NetTechnology_Final.Controllers
             ViewBag.Products = _context.Products.ToList();
             return View("Index");
         }
+
+        [HttpGet]
+        public ActionResult GetOrderDetails(int orderId)
+        {
+            try
+            {
+                List<OrderDetail> orders = _context.OrderDetails.Where(o => o.OrderId == orderId).ToList();
+                foreach (var order in orders)
+                {
+                    order.Products = _context.Products.FirstOrDefault(o => o.Id == order.ProductId);
+                }
+
+                return PartialView("_OrderDetailsPartialView", orders);
+            }
+            catch (Exception ex)
+            {
+                // Ghi log hoặc in ra thông báo lỗi chi tiết
+                Console.WriteLine("Error in GetOrderDetails: " + ex.Message);
+                throw; // Nếu không xử lý được, ném lại lỗi để hiển thị mã lỗi 500
+            }
+
+        }
+
 
     }
     public static class SessionExtensions
