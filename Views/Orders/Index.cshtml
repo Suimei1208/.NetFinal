@@ -229,7 +229,15 @@
                         <td>@order.Quantity</td>
                         <td>@order.UnitPrice</td>
                         <td>@order.OrderDate</td>
-                        <td> <button class="btn btn-danger" data-toggle="modal" data-target="#orderDetailsModal">Details</button></td>
+                            <td>
+                                <button class="btn btn-danger"
+                                        data-toggle="modal"
+                                        data-target="#orderDetailsModal"
+                                        data-order-id="@order.Id"
+                                        onclick="loadOrderDetails(@order.Id)">
+                                    Details
+                                </button>
+                            </td>
                     </tr>
                     } <!--<td> <a asp-action="Index" asp-route-id="order.Id" data-toggle="modal" data-target="#orderDetailsModal">Details</a></td>-->
             </tbody>
@@ -260,19 +268,14 @@
       </div>
       <div class="modal-body">
         <div class="table-responsive">
-          <table class="table">
-            <thead>
-              <tr>
-                <th>Order ID</th>
-                <th>Product Name</th>
-                <th>Quantity</th>
-                <th>Unit Price</th>
-              </tr>
-            </thead>
-            <tbody>
-              <!-- detail se hien o day -->
-            </tbody>
-          </table>
+        <table class="table">
+                        <thead id="orderDetailsHeader">
+                            <!-- Các thẻ <th> sẽ được thêm ở đây bằng JavaScript -->
+                        </thead>
+                        <tbody id="orderDetailsBody">
+                            <!-- Thông tin chi tiết hóa đơn sẽ được thêm ở đây bằng JavaScript -->
+                        </tbody>
+        </table>
         </div>
       </div>
       <div class="modal-footer">
@@ -282,9 +285,29 @@
   </div>
 </div>
 
+<script>
+    function loadOrderDetails(orderId) {
+        // Gửi yêu cầu AJAX để lấy chi tiết hóa đơn dựa trên orderId
+        $.ajax({
+            url: '/Orders/GetOrderDetails',
+            type: 'GET',
+            data: { orderId: orderId },
+            success: function (data) {
+                // Cập nhật tiêu đề của modal
+                $('#orderDetailsModalLabel').text('Order Details - Order ID ' + orderId);
 
+                // Cập nhật header của table
+                $('#orderDetailsHeader').html(data);
 
-
+                // Hiển thị modal
+                $('#orderDetailsModal').modal('show');
+            },
+            error: function () {
+                alert('Đã xảy ra lỗi khi tải chi tiết hóa đơn.');
+            }
+        });
+    }
+</script>
 
 
 
