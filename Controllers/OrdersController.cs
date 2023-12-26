@@ -287,9 +287,7 @@ namespace NetTechnology_Final.Controllers
                      await _context.SaveChangesAsync();
 
 
-                     HttpContext.Session.Remove("_customer");
-                     HttpContext.Session.Remove("_orders");
-                     HttpContext.Session.Remove("_ordersdetail");
+                     
 
                      ViewBag.Products = _context.Products.ToList();
                      return RedirectToAction("Index");
@@ -370,6 +368,10 @@ namespace NetTechnology_Final.Controllers
             var pdfConverter = new BasicConverter(pdfTools);
             var pdfBytes = pdfConverter.Convert(pdfDocument);
             Response.Headers.Add("Content-Disposition", "attachment; filename=invoice.pdf");
+
+            HttpContext.Session.Remove("_customer");
+            HttpContext.Session.Remove("_orders");
+            HttpContext.Session.Remove("_ordersdetail");
 
             return File(pdfBytes, "application/pdf");
         }
