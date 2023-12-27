@@ -14,6 +14,17 @@
     width: 100%;
 }
 
+.circle-img {
+    border-radius: 50%;
+    width: 100px;
+    height: 100px;
+    object-fit: cover;
+}
+
+.centered-text {
+    vertical-align: middle;
+}
+
 #orderDetailsModal .modal-content {
     background-color: #282931;
     color: #bbbbc4;

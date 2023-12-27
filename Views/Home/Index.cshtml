@@ -6,6 +6,8 @@
 <script src="https://cdn.jsdelivr.net/npm/moment"></script>
 <script src="https://cdn.jsdelivr.net/npm/chartjs-adapter-moment"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.29.1/moment.min.js"></script>
+<link rel="stylesheet" href="~/css/indexPage.css" asp-append-version="true" />
+
 <!-- Biểu đồ thứ nhất -->
 <div class="container mt-4">
     <div class="row">
@@ -87,17 +89,17 @@
         </div>
     </div>
 
-    <div class="row mt-4">
+    <div class="row mt-4 chart-container">
         <div class="col-md-12">
             <canvas id="chartOrder" width="400" height="200"></canvas>
         </div>
     </div>
-    <div class="row mt-4">
+    <div class="row mt-4 chart-container">
         <div class="col-md-12">
             <canvas id="chartQuantity" width="400" height="200"></canvas>
         </div>
     </div>
-    <div class="row mt-4">
+    <div class="row mt-4 chart-container">
         <div class="col-md-12">
             <canvas id="chartAmount" width="400" height="200"></canvas>
         </div>
@@ -121,10 +123,12 @@
 </script>
 
 <script>
+    var chartOrderInstance, chartQuantityInstance, chartAmountInstance;
     $(document).ready(function () {
         $('#generateChartBtn').click(function () {
             var startDate = $('#startDate').val();
             var endDate = $('#endDate').val();
+            $('.chart-container').show();
 
             $.getJSON('/Home/GetTotalOrdersData', { startDate: startDate, endDate: endDate })
                 .done(function (data) {
@@ -142,7 +146,11 @@
 
         });
 
+        
+
         function createChart(canvasId, data) {
+            if (chartOrderInstance) {
+                chartOrderInstance.destroy();}
             var ctx = document.getElementById(canvasId).getContext('2d');
 
             // Chuyển đổi định dạng ngày để sắp xếp
@@ -158,7 +166,7 @@
             var dates = data.map(entry => entry.date);
             var totalOrders = data.map(entry => entry.totalOrders);
 
-            var chart = new Chart(ctx, {
+            chartOrderInstance = new Chart(ctx, {
                 type: 'line',
                 data: {
                     labels: dates,
@@ -188,6 +196,9 @@
             });
         }
         function createChartQuantity(canvasId, data) {
+            if (chartQuantityInstance) {
+                chartQuantityInstance.destroy();
+            }
             var ctx = document.getElementById(canvasId).getContext('2d');
 
             // Chuyển đổi định dạng ngày để sắp xếp
@@ -203,7 +214,7 @@
             var dates = data.map(entry => entry.date);
             var totalOrders = data.map(entry => entry.totalQuantity);
 
-            var chart = new Chart(ctx, {
+            chartQuantityInstance = new Chart(ctx, {
                 type: 'line',
                 data: {
                     labels: dates,
@@ -233,6 +244,9 @@
             });
         }
         function createChartAmount(canvasId, data) {
+            if (chartAmountInstance) {
+                chartAmountInstance.destroy();
+            }
             var ctx = document.getElementById(canvasId).getContext('2d');
 
             // Chuyển đổi định dạng ngày để sắp xếp
@@ -289,7 +303,7 @@
                 }
             };
 
-            var chart = new Chart(ctx, {
+            chartAmountInstance = new Chart(ctx, {
                 type: 'line',
                 data: chartData,
                 options: chartOptions

@@ -1,1 +1,21 @@
-﻿
+﻿body {
+    background-color: #282931;
+    color: whitesmoke;
+}
+
+.card {
+    background-color: #383b42;
+    border: none;
+}
+
+canvas {
+    background-color: #383b42;
+}
+
+a, button {
+    color: whitesmoke;
+}
+
+.chart-container {
+    display: none;
+}
