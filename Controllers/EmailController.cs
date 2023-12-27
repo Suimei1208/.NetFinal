@@ -103,8 +103,8 @@ namespace NetTechnology_Final.Controllers
                     existingAccount.Status = Status.Active;
 
                     _context.SaveChanges();
-					return Json(_tokenService.IsTokenExpired(email_convert));
-				}
+                    return RedirectToAction("Index", "Home");
+                }
                 else return View();
             }               
         }

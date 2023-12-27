@@ -155,6 +155,16 @@ namespace NetTechnology_Final.Models
             {
                 return Problem("Entity set 'ApplicationDbContext.Products'  is null.");
             }
+
+            var isProductInOrderDetails = await _context.OrderDetails.AnyAsync(od => od.ProductId == id);
+
+            if (isProductInOrderDetails)
+            {
+                var product = await _context.Products.FindAsync(id);
+                ModelState.AddModelError("Id", "Cannot delete product because it is associated with order details.");
+                return View(product);
+            }
+
             var products = await _context.Products.FindAsync(id);
             if (products != null)
             {
