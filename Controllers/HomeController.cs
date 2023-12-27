@@ -25,15 +25,28 @@ namespace NetTechnology_Final.Controllers
         {
             var productsSoldToday = await GetProductsSoldToday();
             var totalQuantitySoldToday = await GetTotalQuantitySoldToday();
-            var totalAmountSoldToday = await GetTotalAmountSoldToday();
+            var totalAmountSoldToday = await GetTotalAmountToday();
             var totalOrdersCreatedToday = await GetTotalOrdersCreatedToday();
+            var TotalProfitToday = await GetTotalProfitToday();
 
             ViewBag.ProductsSoldToday = productsSoldToday;
             ViewBag.TotalQuantitySoldToday = totalQuantitySoldToday;
             ViewBag.TotalAmountSoldToday = totalAmountSoldToday;
             ViewBag.TotalOrdersCreatedToday = totalOrdersCreatedToday;
+            ViewBag.TotalProfitToday = TotalProfitToday;
 
             return View();
+        }
+        private async Task<long> GetTotalProfitToday()
+        {
+            var today = DateTime.Today;
+
+            var totalProfit = await _context.OrderDetails
+                .Include(detail => detail.Products)
+                .Where(detail => EF.Functions.DateDiffDay(detail.Order.OrderDate, today) == 0)
+                .SumAsync(detail => (detail.Products.RetailPrice - detail.Products.ImportPrice) * detail.Quantity);
+
+            return totalProfit;
         }
 
         private async Task<IQueryable<DailyProductSold>> GetProductsSoldToday()
@@ -61,13 +74,13 @@ namespace NetTechnology_Final.Controllers
                 .SumAsync(detail => detail.Quantity);
         }
 
-        private async Task<long> GetTotalAmountSoldToday()
+        private async Task<long> GetTotalAmountToday()
         {
             var today = DateTime.Today;
 
-            return await _context.OrderDetails
-                .Where(detail => EF.Functions.DateDiffDay(detail.Order.OrderDate, today) == 0)
-                .SumAsync(detail => detail.UnitPrice * detail.Quantity);
+            return await _context.Orders
+                .Where(order => EF.Functions.DateDiffDay(order.OrderDate, today) == 0)
+                .SumAsync(order => order.UnitPrice);
         }
 
         private async Task<int> GetTotalOrdersCreatedToday()
@@ -119,25 +132,32 @@ namespace NetTechnology_Final.Controllers
         [HttpGet]
         public IActionResult GetTotalAmountData(DateTime startDate, DateTime endDate)
         {
-            var data = _context.Orders
+            var result = _context.Orders
+        .Where(order => order.OrderDate >= startDate && order.OrderDate <= endDate)
+        .GroupBy(order => order.OrderDate.Date)
+        .Select(group => new
+        {
+            Date = group.Key,
+            TotalAmount = group.Sum(order => order.UnitPrice),
+            TotalProfit = group
                 .Join(
                     _context.OrderDetails,
                     order => order.Id,
                     orderDetail => orderDetail.OrderId,
                     (order, orderDetail) => new { Order = order, OrderDetail = orderDetail }
                 )
-                .Where(o => o.Order.OrderDate >= startDate && o.Order.OrderDate <= endDate)
-                .GroupBy(o => o.Order.OrderDate.Date)
-                .Select(g => new
+                .GroupBy(joined => joined.Order.OrderDate.Date)
+                .Select(productGroup => new
                 {
-                    Date = g.Key,
-                    TotalAmount = g.Sum(o => o.Order.Quantity * o.Order.UnitPrice),
-                    TotalProfit = g.Sum(o => (o.Order.Quantity * o.Order.UnitPrice) - (o.OrderDetail.Quantity * o.OrderDetail.Products.ImportPrice))
+                    ProductName = productGroup.FirstOrDefault().OrderDetail.Products.ProductName,
+                    TotalQuantity = productGroup.Sum(detail => detail.OrderDetail.Quantity),
+                    Profit = productGroup.Sum(detail => (detail.OrderDetail.Quantity * (detail.OrderDetail.Products.RetailPrice - detail.OrderDetail.Products.ImportPrice)))
                 })
-                .OrderBy(item => item.Date)
-                .ToList();
-
-            return Json(data);
+                .Sum(product => product.Profit)
+        })
+        .OrderBy(item => item.Date)
+        .ToList();
+            return Json(result);
         }
 
     }
