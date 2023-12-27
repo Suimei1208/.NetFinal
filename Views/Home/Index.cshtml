@@ -5,12 +5,45 @@
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 
 <!-- Biểu đồ thứ nhất -->
-<canvas id="myChart1" width="400" height="200"></canvas>
-<div>
-    <h3>Total quantity sold today: @ViewBag.TotalQuantitySoldToday</h3>
-    <h3>Total amount sold today: @ViewBag.TotalAmountSoldToday.ToString("N0", System.Globalization.CultureInfo.GetCultureInfo("vi-VN")) VND</h3>
-    <h3>Total orders created today: @ViewBag.TotalOrdersCreatedToday</h3>
+<div class="container mt-4">
+    <div class="row">
+        <div class="col-md-12">
+            <div class="card mb-4">
+                <div class="card-body">
+                    <canvas id="myChart1" width="400" height="200"></canvas>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col-md-4">
+            <div class="card text-center mb-4">
+                <div class="card-body">
+                    <h5 class="card-title">Total Quantity Sold Today</h5>
+                    <p class="card-text">@ViewBag.TotalQuantitySoldToday</p>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="card text-center mb-4">
+                <div class="card-body">
+                    <h5 class="card-title">Total Amount Sold Today</h5>
+                    <p class="card-text">@ViewBag.TotalAmountSoldToday.ToString("N0", System.Globalization.CultureInfo.GetCultureInfo("vi-VN")) VND</p>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="card text-center mb-4">
+                <div class="card-body">
+                    <h5 class="card-title">Total Orders Created Today</h5>
+                    <p class="card-text">@ViewBag.TotalOrdersCreatedToday</p>
+                </div>
+            </div>
+        </div>
+    </div>
 </div>
+
 
 <script>
     var productsSoldToday = @Html.Raw(Json.Serialize(ViewBag.ProductsSoldToday));
@@ -38,19 +71,51 @@
     });
 </script>
 
-<input type="date" id="startDate" />
-<input type="date" id="endDate" />
-<button id="generateChartBtn">Generate Chart</button>
 
-<div>
-    <canvas id="chartOrder" width="400" height="200"></canvas>
+<div class="container mt-4">
+    <div class="row">
+        <div class="col-md-4">
+            <input type="date" id="startDate" class="form-control" placeholder="Start Date" />
+        </div>
+        <div class="col-md-4">
+            <input type="date" id="endDate" class="form-control" placeholder="End Date" />
+        </div>
+        <div class="col-md-4">
+            <button id="generateChartBtn" class="btn btn-primary">Generate Chart</button>
+        </div>
+    </div>
+
+    <div class="row mt-4">
+        <div class="col-md-12">
+            <canvas id="chartOrder" width="400" height="200"></canvas>
+        </div>
+    </div>
+    <div class="row mt-4">
+        <div class="col-md-12">
+            <canvas id="chartQuantity" width="400" height="200"></canvas>
+        </div>
+    </div>
+    <div class="row mt-4">
+        <div class="col-md-12">
+            <canvas id="chartAmount" width="400" height="200"></canvas>
+        </div>
+    </div>
 </div>
-<div>
-    <canvas id="chartQuantity" width="400" height="200"></canvas>
-</div>
-<div>
-    <canvas id="chartAmount" width="400" height="200"></canvas>
-</div>
+
+<script>
+    function updateEndDateMin(startDate) {
+        var endDateInput = document.getElementById('endDate');
+        endDateInput.setAttribute('min', startDate);
+    }
+
+    var today = new Date().toISOString().split('T')[0];
+    document.getElementById('startDate').value = today;
+    updateEndDateMin(today); 
+
+    document.getElementById('startDate').addEventListener('change', function() {
+        updateEndDateMin(this.value);
+    });
+</script>
 
 <script>
     $(document).ready(function () {
@@ -58,30 +123,29 @@
             var startDate = $('#startDate').val();
             var endDate = $('#endDate').val();
 
-            // Gửi yêu cầu AJAX cho tổng đơn hàng mỗi ngày
+            // Fetch and create chart for Total Orders
             $.getJSON('/Home/GetTotalOrdersData', { startDate: startDate, endDate: endDate })
                 .done(function (data) {
-                    createChart('chartOrder', data, 'Tổng Đơn Hàng');
+                    createChart('chartOrder', data, 'Tổng Đơn Hàng', 'TotalOrders');
                 });
 
-            // Gửi yêu cầu AJAX cho tổng số lượng sản phẩm mỗi ngày
+            // Fetch and create chart for Total Quantity
             $.getJSON('/Home/GetTotalQuantityData', { startDate: startDate, endDate: endDate })
                 .done(function (data) {
-                    createChart('chartQuantity', data, 'Tổng Số Lượng Sản Phẩm');
+                    createChart('chartQuantity', data, 'Tổng Số Lượng Sản Phẩm', 'TotalQuantity');
                 });
 
-            // Gửi yêu cầu AJAX cho tổng tiền mỗi ngày
+            // Fetch and create chart for Total Amount
             $.getJSON('/Home/GetTotalAmountData', { startDate: startDate, endDate: endDate })
                 .done(function (data) {
-                    createChart('chartAmount', data, 'Tổng Tiền');
+                    createChart('chartAmount', data, 'Tổng Tiền', 'TotalAmount');
                 });
         });
 
-        function createChart(canvasId, data, label) {
+        function createChart(canvasId, data, label, dataField) {
             var ctx = document.getElementById(canvasId).getContext('2d');
-
             var labels = data.map(entry => entry.Date);
-            var values = data.map(entry => entry.Value);
+            var values = data.map(entry => entry[dataField]);
 
             var chart = new Chart(ctx, {
                 type: 'line',
@@ -98,3 +162,6 @@
         }
     });
 </script>
+
+
+
