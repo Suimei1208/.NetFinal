@@ -249,12 +249,11 @@ namespace NetTechnology_Final.Controllers
             return RedirectToAction("Index");
             //return Json(ProductName);
         }
-        public async Task<IActionResult> Buy(string TotalAmount)
+        public async Task<IActionResult> Buy(string TotalAmount, long AmountCustomerBuy)
         {
-            int count = 0;
+             int count = 0;
              var customer = HttpContext.Session.Get<Customer>("_customer");
-             var orderDetails = HttpContext.Session.Get<List<OrderDetail>>("_ordersdetail");
-            
+             var orderDetails = HttpContext.Session.Get<List<OrderDetail>>("_ordersdetail");            
              if (orderDetails != null)
              {
                  if (customer != null)
@@ -266,10 +265,10 @@ namespace NetTechnology_Final.Controllers
                          AccountId = int.Parse(User.FindFirst(ClaimTypes.NameIdentifier)?.Value.ToString()),
                          Quantity = 0,
                          OrderDate = DateTime.Now
-                     };
+                     };                  
                      _context.Orders.Add(order);
                      await _context.SaveChangesAsync();
-
+                   
                      foreach (var orderDetail in orderDetails)
                      {
                         var quantity = _context.Products.FirstOrDefault(p => p.Id == orderDetail.ProductId);
@@ -280,18 +279,20 @@ namespace NetTechnology_Final.Controllers
                          count += orderDetail.Quantity;
                          _context.OrderDetails.Add(orderDetail);
                          await _context.SaveChangesAsync();
-
-
                      }
 
                      order.Quantity = count;
-                     await _context.SaveChangesAsync();
-
-
-                     
-
+                    var amount = new Amount
+                    {
+                        amountreceived = AmountCustomerBuy,
+                        returnamount = AmountCustomerBuy - order.UnitPrice
+                    };
+                    HttpContext.Session.Set("Amount", amount);
+                    await _context.SaveChangesAsync();
+                 
                      ViewBag.Products = _context.Products.ToList();
-                     return RedirectToAction("Index");
+                    return RedirectToAction("Index");
+                    //return Json(Amount);
                  }
                  ModelState.AddModelError("Error", "Not found customer");
                  return RedirectToAction("Index");
@@ -299,7 +300,7 @@ namespace NetTechnology_Final.Controllers
 
              ModelState.AddModelError("Error", "Add product into cart!!");
              return RedirectToAction("Index");
-           // return Json(count.ToString());
+           //return Json();
         }
 
         [HttpPost]
@@ -307,6 +308,7 @@ namespace NetTechnology_Final.Controllers
         {
             var customer = HttpContext.Session.Get<Customer>("_customer");
             var orderDetails = HttpContext.Session.Get<List<OrderDetail>>("_ordersdetail");
+            Amount storedAmount = HttpContext.Session.Get<Amount>("Amount");
 
             var htmlContent = new StringBuilder();
 
@@ -319,6 +321,7 @@ namespace NetTechnology_Final.Controllers
             htmlContent.Append($"<p style='text-align: center;'>Phone: {customer.Phone}</p>");
             htmlContent.Append($"<p style='text-align: center;'>Address: {customer.Address}</p>");
             htmlContent.Append($"<p style='text-align: center;'>Date: {DateTime.Now}</p>");
+            htmlContent.Append($"<p style='text-align: center;'>Sale: {User.Identity.Name}</p>");
 
             htmlContent.Append("<table style='width: 100%; border-collapse: collapse;'>");
             htmlContent.Append("<tr>");
@@ -340,6 +343,8 @@ namespace NetTechnology_Final.Controllers
             htmlContent.Append("</table>");
 
             htmlContent.Append($"<p style='text-align: right;'>Total Amount: {orderDetails.Sum(o => o.UnitPrice):N0} VND</p>");
+            htmlContent.Append($"<p style='text-align: right;'>Amount received from customers: {storedAmount.amountreceived:N0} VND</p>");
+            htmlContent.Append($"<p style='text-align: right;'>Change amount: {storedAmount.returnamount:N0} VND</p>");
 
             htmlContent.Append("<h3>Thank you and visit again</h3>");
             htmlContent.Append("</div>");
@@ -373,6 +378,7 @@ namespace NetTechnology_Final.Controllers
             HttpContext.Session.Remove("_customer");
             HttpContext.Session.Remove("_orders");
             HttpContext.Session.Remove("_ordersdetail");
+            HttpContext.Session.Remove("Amount");
 
             return File(pdfBytes, "application/pdf");
         }
@@ -465,5 +471,11 @@ namespace NetTechnology_Final.Controllers
             return value == null ? default(T) : JsonConvert.DeserializeObject<T>(value);
         }
     }
+    public class Amount
+    {
+        public long amountreceived {  get; set; }
+        public long returnamount {  get; set; }
+    }
+
 
 }

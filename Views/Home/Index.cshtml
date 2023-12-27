@@ -3,7 +3,9 @@
 }
 <script src="https://code.jquery.com/jquery-3.6.4.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-
+<script src="https://cdn.jsdelivr.net/npm/moment"></script>
+<script src="https://cdn.jsdelivr.net/npm/chartjs-adapter-moment"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.29.1/moment.min.js"></script>
 <!-- Biểu đồ thứ nhất -->
 <div class="container mt-4">
     <div class="row">
@@ -54,7 +56,7 @@
         data: {
             labels: productsSoldToday.map(entry => entry.productName),
             datasets: [{
-                label: 'Số Lượng Bán',
+                label: 'Quantity Buy',
                 data: productsSoldToday.map(entry => entry.totalQuantity),
                 backgroundColor: 'rgba(75, 192, 192, 0.2)',
                 borderColor: 'rgba(75, 192, 192, 1)',
@@ -124,45 +126,182 @@
             var startDate = $('#startDate').val();
             var endDate = $('#endDate').val();
 
-            // Fetch and create chart for Total Orders
             $.getJSON('/Home/GetTotalOrdersData', { startDate: startDate, endDate: endDate })
                 .done(function (data) {
-                    createChart('chartOrder', data, 'Tổng Đơn Hàng', 'TotalOrders');
+                    createChart('chartOrder', data);
                 });
 
-            // Fetch and create chart for Total Quantity
             $.getJSON('/Home/GetTotalQuantityData', { startDate: startDate, endDate: endDate })
                 .done(function (data) {
-                    createChart('chartQuantity', data, 'Tổng Số Lượng Sản Phẩm', 'TotalQuantity');
+                    createChartQuantity('chartQuantity', data);
                 });
-
-            // Fetch and create chart for Total Amount
             $.getJSON('/Home/GetTotalAmountData', { startDate: startDate, endDate: endDate })
                 .done(function (data) {
-                    createChart('chartAmount', data, 'Tổng Tiền', 'TotalAmount');
+                    createChartAmount('chartAmount', data);
                 });
+
         });
 
-        function createChart(canvasId, data, label, dataField) {
+        function createChart(canvasId, data) {
             var ctx = document.getElementById(canvasId).getContext('2d');
-            var labels = data.map(entry => entry.Date);
-            var values = data.map(entry => entry[dataField]);
+
+            // Chuyển đổi định dạng ngày để sắp xếp
+            data.forEach(function (entry) {
+                entry.Date = new Date(entry.Date);
+            });
+
+            // Sắp xếp dữ liệu theo ngày
+            data.sort(function (a, b) {
+                return a.Date - b.Date;
+            });
+
+            var dates = data.map(entry => entry.date);
+            var totalOrders = data.map(entry => entry.totalOrders);
 
             var chart = new Chart(ctx, {
                 type: 'line',
                 data: {
-                    labels: labels,
+                    labels: dates,
                     datasets: [{
-                        label: label,
+                        label: 'Total Orders',
                         borderColor: 'rgba(75, 192, 192, 1)',
-                        data: values,
+                        data: totalOrders,
                         fill: false,
-                    }],
+                    }]
                 },
+                options: {
+                    scales: {
+                        x: {
+                            type: 'time',
+                            time: {
+                                unit: 'day',
+                                displayFormats: {
+                                    day: 'MMM D'
+                                }
+                            }
+                        },
+                        y: {
+                            beginAtZero: true
+                        }
+                    }
+                }
             });
         }
+        function createChartQuantity(canvasId, data) {
+            var ctx = document.getElementById(canvasId).getContext('2d');
+
+            // Chuyển đổi định dạng ngày để sắp xếp
+            data.forEach(function (entry) {
+                entry.Date = new Date(entry.Date);
+            });
+
+            // Sắp xếp dữ liệu theo ngày
+            data.sort(function (a, b) {
+                return a.Date - b.Date;
+            });
+
+            var dates = data.map(entry => entry.date);
+            var totalOrders = data.map(entry => entry.totalQuantity);
+
+            var chart = new Chart(ctx, {
+                type: 'line',
+                data: {
+                    labels: dates,
+                    datasets: [{
+                        label: 'Total Quantity',
+                        borderColor: 'rgba(75, 192, 192, 1)',
+                        data: totalOrders,
+                        fill: false,
+                    }]
+                },
+                options: {
+                    scales: {
+                        x: {
+                            type: 'time',
+                            time: {
+                                unit: 'day',
+                                displayFormats: {
+                                    day: 'MMM D'
+                                }
+                            }
+                        },
+                        y: {
+                            beginAtZero: true
+                        }
+                    }
+                }
+            });
+        }
+        function createChartAmount(canvasId, data) {
+            var ctx = document.getElementById(canvasId).getContext('2d');
+
+            // Chuyển đổi định dạng ngày để sắp xếp
+            data.forEach(function (entry) {
+                entry.Date = new Date(entry.Date);
+            });
+
+            // Sắp xếp dữ liệu theo ngày
+            data.sort(function (a, b) {
+                return a.Date - b.Date;
+            });
+
+            var dates = data.map(entry => entry.date);
+            var totalOrders = data.map(entry => entry.totalAmount);
+
+            var datasets = [
+                {
+                    label: 'Total Amount',
+                    borderColor: 'rgba(75, 192, 192, 1)',
+                    data: totalOrders,
+                    fill: false,
+                }
+            ];
+
+            if (userIsAdmin()) {
+                var totalProfit = data.map(entry => entry.totalProfit);
+                datasets.push({
+                    label: 'Total Profit',
+                    borderColor: 'rgba(255, 0, 0, 1)',
+                    data: totalProfit,
+                    fill: false,
+                });
+            }
+
+            var chartData = {
+                labels: dates,
+                datasets: datasets
+            };
+
+            var chartOptions = {
+                scales: {
+                    x: {
+                        type: 'time',
+                        time: {
+                            unit: 'day',
+                            displayFormats: {
+                                day: 'MMM D'
+                            }
+                        }
+                    },
+                    y: {
+                        beginAtZero: true
+                    }
+                }
+            };
+
+            var chart = new Chart(ctx, {
+                type: 'line',
+                data: chartData,
+                options: chartOptions
+            });
+        }
+
+
+        var isAdmin = @Html.Raw(Json.Serialize(User.IsInRole("Admin")));
+
+        function userIsAdmin() {
+            return isAdmin;
+        }
     });
+
 </script>
-
-
-

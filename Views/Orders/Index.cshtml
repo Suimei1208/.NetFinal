@@ -254,6 +254,7 @@
 
 <div style="width: 100%; display: flex; justify-content: right; margin-bottom: 20px;">
     <form method="post" asp-controller="Orders" asp-action="Buy">
+        <input type="number" name="AmountCustomerBuy"/>
         <input type="hidden" name="TotalAmount" id="hiddenTotalAmount" value="0" />
         <span class="text-danger">@Html.ValidationMessage("Error")</span>
         <button type="submit" class="btn btn-primary m-1" >Order</button>

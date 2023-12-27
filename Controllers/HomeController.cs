@@ -78,75 +78,67 @@ namespace NetTechnology_Final.Controllers
                 .CountAsync(order => EF.Functions.DateDiffDay(order.OrderDate, today) == 0);
         }
 
-        public JsonResult GetTotalOrdersData(DateTime startDate, DateTime endDate)
+        [HttpGet]
+        public IActionResult GetTotalOrdersData(DateTime startDate, DateTime endDate)
         {
-            var data = _context.OrderDetails
-                .Where(od => od.Order.OrderDate >= startDate && od.Order.OrderDate <= endDate)
-                .GroupBy(od => od.Order.OrderDate)
-                .Select(group => new
+            var data = _context.Orders
+                .Where(o => o.OrderDate >= startDate && o.OrderDate <= endDate)
+                .GroupBy(o => o.OrderDate.Date)
+                .Select(g => new
                 {
-                    Date = group.Key,
-                    TotalOrders = group.Count()
+                    Date = g.Key,
+                    TotalOrders = g.Count()
                 })
-                .ToList() // Lấy dữ liệu từ cơ sở dữ liệu
-                .Select(item => new
+                .OrderBy(item => item.Date)
+                .ToList();
+            Console.WriteLine($"StartDate: {startDate}");
+            Console.WriteLine($"EndDate: {endDate}");
+
+            Console.WriteLine("JSON Data:");
+            Console.WriteLine(System.Text.Json.JsonSerializer.Serialize(data));
+            return Json(data);
+        }
+
+        [HttpGet]
+        public IActionResult GetTotalQuantityData(DateTime startDate, DateTime endDate)
+        {
+            var data = _context.Orders
+                .Where(o => o.OrderDate >= startDate && o.OrderDate <= endDate)
+                .GroupBy(o => o.OrderDate.Date)
+                .Select(g => new
                 {
-                    Date = item.Date.ToShortDateString(),
-                    item.TotalOrders
+                    Date = g.Key,
+                    TotalQuantity = g.Sum(o => o.Quantity)
                 })
                 .OrderBy(item => item.Date)
                 .ToList();
 
-
             return Json(data);
         }
 
-        // Action để trả về dữ liệu cho biểu đồ tổng số lượng sản phẩm mỗi ngày
-        public JsonResult GetTotalQuantityData(DateTime startDate, DateTime endDate)
+        [HttpGet]
+        public IActionResult GetTotalAmountData(DateTime startDate, DateTime endDate)
         {
-            var data = _context.OrderDetails
-    .Where(od => od.Order.OrderDate >= startDate && od.Order.OrderDate <= endDate)
-    .GroupBy(od => od.Order.OrderDate)
-    .Select(group => new
-    {
-        Date = group.Key,
-        TotalQuantity = group.Sum(od => od.Quantity)
-    })
-    .ToList() // Lấy dữ liệu từ cơ sở dữ liệu
-    .Select(item => new
-    {
-        Date = item.Date.ToShortDateString(),
-        item.TotalQuantity
-    })
-    .OrderBy(item => item.Date)
-    .ToList();
-
+            var data = _context.Orders
+                .Join(
+                    _context.OrderDetails,
+                    order => order.Id,
+                    orderDetail => orderDetail.OrderId,
+                    (order, orderDetail) => new { Order = order, OrderDetail = orderDetail }
+                )
+                .Where(o => o.Order.OrderDate >= startDate && o.Order.OrderDate <= endDate)
+                .GroupBy(o => o.Order.OrderDate.Date)
+                .Select(g => new
+                {
+                    Date = g.Key,
+                    TotalAmount = g.Sum(o => o.Order.Quantity * o.Order.UnitPrice),
+                    TotalProfit = g.Sum(o => (o.Order.Quantity * o.Order.UnitPrice) - (o.OrderDetail.Quantity * o.OrderDetail.Products.ImportPrice))
+                })
+                .OrderBy(item => item.Date)
+                .ToList();
 
             return Json(data);
         }
-
-        // Action để trả về dữ liệu cho biểu đồ tổng tiền mỗi ngày
-        public JsonResult GetTotalAmountData(DateTime startDate, DateTime endDate)
-        {
-            var data = _context.OrderDetails
-    .Where(od => od.Order.OrderDate >= startDate && od.Order.OrderDate <= endDate)
-    .GroupBy(od => od.Order.OrderDate)
-    .Select(group => new
-    {
-        Date = group.Key,
-        TotalAmount = group.Sum(od => (long)od.Quantity * od.UnitPrice)
-    })
-    .ToList()
-    .Select(item => new
-    {
-        Date = item?.Date.ToShortDateString(), // Kiểm tra item và item.Date có null hay không
-        item?.TotalAmount
-    })
-    .OrderBy(item => item?.Date)
-    .ToList();
-            return Json(data);
-        }
-
 
     }
     public class DailyProductSold
