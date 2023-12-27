@@ -15,6 +15,7 @@
 <table class="table table-responsive">
     <thead>
         <tr>
+            <th></th>
             <th>
                 @Html.DisplayNameFor(model => model.Name)
             </th>
@@ -36,6 +37,9 @@
     <tbody>
 @foreach (var item in Model) {
         <tr>
+            <td>
+                <img src="@Html.DisplayFor(modelItem => item.Avatar)" alt="User Avatar" />
+            </td>
             <td>
                 @Html.DisplayFor(modelItem => item.Name)
             </td>

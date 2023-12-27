@@ -61,7 +61,7 @@ namespace NetTechnology_Final.Models
         [HttpPost]
         [ValidateAntiForgeryToken]
         [Authorize(Roles = "Admin")]
-        public async Task<IActionResult> Create([Bind("Id,Barcode,ProductName,ProductDescription,ImportPrice,RetailPrice")] Products products)
+        public async Task<IActionResult> Create([Bind("Id,Barcode,ProductName,ProductDescription,ImportPrice,RetailPrice,Quantity")] Products products)
         {
             if (ModelState.IsValid)
             {
